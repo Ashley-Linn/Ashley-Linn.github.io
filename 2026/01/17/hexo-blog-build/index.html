@@ -161,50 +161,8 @@
     font-weight: bold !important;
     color: #333;
   } 
-
-  /* ====================修复导航重复问题 ==================== */
-  /* 精确隐藏重复的导航链接 */
-  .navbar-container nav.post a[href="/"],
-  .navbar-container nav.post a[href="/categories/"],
-  .navbar-container nav.post a[href="/tags/"],
-  .navbar-container nav.post a[href="/archives/"] {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    overflow: hidden !important;
-  }
-
-  /* 确保博客导航链接显示 */
-  .navbar-container nav.post a[href="/blog/"],
-  .navbar-container nav.post a[href="/blog/categories/"],
-  .navbar-container nav.post a[href="/blog/tags/"],
-  .navbar-container nav.post a[href="/blog/archives/"] {
-    display: inline-block !important;
-    visibility: visible !important;
-  }     
+    
 </style>
-<script>
-  // 页面加载完成后执行
-  document.addEventListener('DOMContentLoaded', function() {
-    // 1. 修复导航栏：隐藏特定链接
-    var navLinks = document.querySelectorAll('nav.post a');
-    
-    // 隐藏第一个和第二个链接
-    if (navLinks.length >= 2) {
-      navLinks[0].style.display = 'none'; // 首页链接
-      navLinks[1].style.display = 'none'; // 第一个归档
-    }
-    
-    // 2. 确保图标大小（二次保险）
-    var icons = document.querySelectorAll('.social-wrap img');
-    icons.forEach(function(icon) {
-      icon.style.width = '32px';
-      icon.style.height = '32px';
-    });
-  });
-</script>
 
 </head>
 <body>
@@ -212,7 +170,7 @@
 <div class="l_body content" id="start" layout="post" type="tech" ><aside class="l_left"><div class="sidebg"></div><div class="leftbar-container">
 
 
-<header class="header"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/images/avatar.png" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main">木予</div><div class="sub cap">Vitae vestigia linere</div></a></div></header>
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/images/avatar.png" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main">木予</div><div class="sub normal cap">Vitae vestigia linere</div><div class="sub hover cap" style="opacity:0"> 迹途</div></a></div></header>
 
 <div class="nav-area">
 
@@ -223,9 +181,9 @@
 
 
 
-<widget class="widget-wrapper recent post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2026/01/31/study-method/"><span class="title">学习方法反思：落地才是知识的终极意义</span></a><a class="item title" href="/2026/01/17/hexo-blog-build/"><span class="title">如何搭建Hexo个人博客(Windows 版)</span></a><a class="item title" href="/2025/12/30/hello-world/"><span class="title">Hello World</span></a></div></widget>
+<widget class="widget-wrapper recent post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2026/01/31/study-method/"><span class="title">学习方法反思：落地才是知识的终极意义</span></a><a class="item title" href="/2026/01/17/hexo-blog-build/"><span class="title">如何搭建Hexo个人博客(Windows 版)</span></a></div></widget>
 </div>
-<footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/Ashley-Linn" target="_blank" rel="external nofollow noopener noreferrer"><img src="/images/icons/github.svg" width="32" height="32" style="color: #000000; margin-right:8px; vertical-align:middle; pointer-events: none;"></a><a class="social" href="mailto:lyj7324@163.com" rel="noopener noreferrer"><img src="/images/icons/envelope.svg" width="32" height="32" style="color: #000000; margin-right:8px; vertical-align:middle; pointer-events: none;"></a></div></footer>
+<footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/Ashley-Linn" target="_blank" rel="external nofollow noopener noreferrer"><img src="/images/icons/github.svg" width="32" height="32" style="color: #000000; margin-right:8px; vertical-align:middle; pointer-events: none;"></a><a class="social" href="https://www.zhihu.com/people/ha-a-ha-38-49" target="_blank" rel="external nofollow noopener noreferrer"><img src="/images/icons/zhihu.svg" width="32" height="32" style="color: #000000; margin-right:8px; vertical-align:middle; pointer-events: none;"></a><a class="social" href="https://www.xiaohongshu.com/user/profile/65f56b57000000000600fe05" target="_blank" rel="external nofollow noopener noreferrer"><img src="/images/icons/xiaohongshu.svg" width="32" height="32" style="color: #000000; margin-right:8px; vertical-align:middle; pointer-events: none;"></a><a class="social" href="/images/wechat-qrcode.jpg" rel="noopener noreferrer"><img src="/images/icons/wechat.svg" width="32" height="32" style="color: #000000; margin-right:8px; vertical-align:middle; pointer-events: none;"></a></div></footer>
 </div></aside><div class="l_main" id="main">
 
 
@@ -471,14 +429,14 @@
     </section>
     </div>
 
-<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2026/01/31/study-method/">学习方法反思：落地才是知识的终极意义</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2025/12/30/hello-world/">Hello World</a></div></section></div>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2026/01/31/study-method/">学习方法反思：落地才是知识的终极意义</a></div><div class="item" id="next"></div></section></div>
 
 
 
 
 
 
-<footer class="page-footer footnote"><hr><div class="sitemap" style="column-count:4;"><div class="sitemap-group"><span class="fs15">博客</span><a href="/">近期发布</a><a href="/blog/categories/">分类</a><a href="/blog/tags/">标签</a><a href="/blog/archives/">归档</a></div><div class="sitemap-group"><span class="fs15">内容板块</span><a href="/tech/">技术笔记</a><a href="/growth/">成长印记</a><a href="/study/">学习笔记</a><a href="/manage/">自我管理</a></div><div class="sitemap-group"><span class="fs15">社交</span><a target="_blank" rel="noopener" href="https://github.com/Ashley-Linn">Github</a><a target="_blank" rel="noopener" href="https://www.zhihu.com/people/ha-a-ha-38-49">知乎</a></div><div class="sitemap-group"><span class="fs15">关于</span><a href="/about/">本站简介</a><a href="/about/privacy/">隐私政策</a><a target="_blank" rel="noopener" href="https://github.com/Ashley-Linn">Github</a></div></div><div class="text"><p>本站由 <a href="/">木予</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.33.1">Stellar 1.33.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+<footer class="page-footer footnote"><hr><div class="sitemap" style="column-count:4;"><div class="sitemap-group"><span class="fs15">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs15">内容板块</span><a href="/tech/">技术笔记</a><a href="/growth/">成长印记</a><a href="/study/">学习笔记</a><a href="/manage/">自我管理</a></div><div class="sitemap-group"><span class="fs15">社交</span><a target="_blank" rel="noopener" href="https://github.com/Ashley-Linn">Github</a><a target="_blank" rel="noopener" href="https://www.zhihu.com/people/ha-a-ha-38-49">知乎</a><a target="_blank" rel="noopener" href="https://www.xiaohongshu.com/user/profile/65f56b57000000000600fe05)">小红书</a><a href="/images/wechat-qrcode.jpg">公众号</a></div><div class="sitemap-group"><span class="fs15">关于</span><a href="/about/">本站简介</a><a href="/about/privacy/">隐私政策</a><a target="_blank" rel="noopener" href="https://github.com/Ashley-Linn">Github</a><a href="mailto:lyj7324@163.com">邮箱</a></div></div><div class="text"><p>本站由 <a href="/">木予</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.33.1">Stellar 1.33.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
 </div></footer>
 <div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
 <div class="widgets">
