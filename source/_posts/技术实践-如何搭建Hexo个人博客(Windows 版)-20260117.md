@@ -1,7 +1,7 @@
 ---
 title: 如何搭建Hexo个人博客(Windows 版)
 date: 2026-01-17 00:00:00
-category: 技术笔记
+category: 技术实践
 tags:
   - Hexo
   - 个人博客搭建

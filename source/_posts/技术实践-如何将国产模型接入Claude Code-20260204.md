@@ -1,6 +1,6 @@
 ---
 title: 如何将国产模型接入Claude Code
-category: 技术笔记
+category: 技术实践
 tags:
   - Claude Code
   - CC-Switch

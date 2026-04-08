@@ -104,7 +104,7 @@ theme: stellar
 deploy:
   type: git
   repo: https://github.com/Ashley-Linn/Ashley-Linn.github.io.git
-  branch: master
+  branch: gh-pages
 
 # 启用分类/标签/归档生成
 category_generator:
