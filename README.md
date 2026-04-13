@@ -215,21 +215,64 @@ git push -u origin main
 
 ------
 
-## 七、部署说明
+## 七、部署说明（源码与成品分离）
 
-本仓库已配置 GitHub Pages，推送 `main` 分支后自动部署。
+本博客采用 **源码与成品分离** 的部署策略：
 
-**部署命令**：
+- **源码分支**：`master`（存放 Hexo 源文件、主题配置、文章等）
+- **成品分支**：`gh-pages`（存放 Hexo 生成的静态页面，由 GitHub Pages 自动发布）
 
-bash
+### 部署流程
 
-```
-hexo clean && hexo g && hexo d
-```
+1. **本地生成静态文件**
 
-若使用 GitHub Actions，请确保工作流文件 `.github/workflows/deploy.yml` 正确。
+   bash
 
-------
+   ```
+   hexo clean && hexo g
+   ```
+
+2. **将静态文件推送到 `gh-pages` 分支**
+   使用 `hexo-deployer-git` 插件，配置 `_config.yml`：
+
+   yaml
+
+   ```
+   deploy:
+     type: git
+     repo: https://github.com/Ashley-Linn/Ashley-Linn.github.io.git
+     branch: gh-pages
+   ```
+
+   然后执行部署命令：
+
+   bash
+
+   ```
+   hexo d
+   ```
+  
+3. **将源码推送到 `master` 分支**
+
+   bash
+
+   ```
+   git add .
+   git commit -m "更新源码"
+   git push origin master
+   ```
+
+### GitHub Pages 设置
+
+- 仓库 Settings → Pages → Build and deployment → Source 选择 **Deploy from a branch**
+- Branch 选择 `gh-pages`，文件夹选择 `/ (root)`
+- 保存后，访问 `https://ashley-linn.github.io/` 即可看到博客
+
+### 注意事项
+
+- 不要将生成的 `public/` 目录提交到 `master` 分支（已在 `.gitignore` 中忽略）。
+- 每次修改文章或主题后，需要**先执行 `hexo g` 生成静态文件，再执行 `hexo d` 部署到 `gh-pages`**，同时将源码变更推送到 `master`。
+- 如果使用 GitHub Actions 自动化部署，可跳过本地 `hexo d`，但需要配置工作流文件。当前采用手动部署方式。
 
 ## 八、参考资料
 
