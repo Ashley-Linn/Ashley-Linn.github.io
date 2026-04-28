@@ -28,8 +28,9 @@
 <meta property="og:description" content="每天被海量信息淹没？时政、医药、投资、AI……想高效获取真正有用的内容，却总在刷公众号、翻网页中浪费一小时？本文记录了我从“信息焦虑”到“自动化简报”的完整折腾过程，包含三种技术方案对比、完整部署命令以及避坑指南。无论你是想快速实现，还是了解背后的技术选型，都能找到答案。   目录 背景 方案选型 环境准备 部署RSSHub 攻克微信公众号 验证RSS源的有效性 接入OpenClaw + Dee">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-04-13T12:51:20.844Z">
-<meta property="article:modified_time" content="2026-04-13T13:03:26.511Z">
+<meta property="article:modified_time" content="2026-04-28T09:50:00.478Z">
 <meta property="article:author" content="木予">
+<meta property="article:tag" content="工程实践">
 <meta property="article:tag" content="RSSHub">
 <meta property="article:tag" content="OpenClaw">
 <meta property="article:tag" content="DeepSeek">
@@ -39,12 +40,11 @@
 <meta property="article:tag" content="飞书机器人">
 <meta property="article:tag" content="Obsidian">
 <meta property="article:tag" content="AI Agent">
-<meta property="article:tag" content="工程实践">
 <meta name="twitter:card" content="summary">
   
   
   
-  <meta name="keywords" content="RSSHub,OpenClaw,DeepSeek,自动化,新闻摘要,RSS,飞书机器人,Obsidian,AI Agent,工程实践">
+  <meta name="keywords" content="工程实践,RSSHub,OpenClaw,DeepSeek,自动化,新闻摘要,RSS,飞书机器人,Obsidian,AI Agent">
 
   <!-- feed -->
   
@@ -56,7 +56,7 @@
 
   
 
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"木予","sameAs":[]},"dateCreated":"2026-04-13T20:51:20+08:00","dateModified":"2026-04-13T21:03:26+08:00","datePublished":"2026-04-13T20:51:20+08:00","description":"","headline":"从零搭建个人AI信息简报系统：RSSHub + OpenClaw + DeepSeek 实战","mainEntityOfPage":{"@type":"WebPage","@id":"https://ashley-linn.github.io/2026/04/13/rss-summary/"},"publisher":{"@type":"Organization","name":"木予","sameAs":[]},"url":"https://ashley-linn.github.io/2026/04/13/rss-summary/","keywords":"RSSHub, OpenClaw, DeepSeek, 自动化, 新闻摘要, RSS, 飞书机器人, Obsidian, AI Agent, 工程实践","image":[]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"木予","sameAs":[]},"dateCreated":"2026-04-13T20:51:20+08:00","dateModified":"2026-04-28T17:50:00+08:00","datePublished":"2026-04-13T20:51:20+08:00","description":"","headline":"从零搭建个人AI信息简报系统：RSSHub + OpenClaw + DeepSeek 实战","mainEntityOfPage":{"@type":"WebPage","@id":"https://ashley-linn.github.io/2026/04/13/rss-summary/"},"publisher":{"@type":"Organization","name":"木予","sameAs":[]},"url":"https://ashley-linn.github.io/2026/04/13/rss-summary/","keywords":"工程实践, RSSHub, OpenClaw, DeepSeek, 自动化, 新闻摘要, RSS, 飞书机器人, Obsidian, AI Agent","image":[]}</script>
   <link rel="shortcut icon" href="/favicon.png" type="image/x-icon"><style>
   /* ==================== 正文样式 ==================== */
   /* 核心：正文强制纯黑（保证阅读） */
@@ -186,7 +186,7 @@
 
 
 
-<widget class="widget-wrapper recent post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2026/04/13/rss-summary/"><span class="title">从零搭建个人AI信息简报系统：RSSHub + OpenClaw + DeepSeek 实战</span></a><a class="item title" href="/2026/02/04/claude-code/"><span class="title">如何将国产模型接入Claude Code</span></a><a class="item title" href="/2026/01/17/hexo-blog-build/"><span class="title">如何搭建Hexo个人博客(Windows 版)</span></a><a class="item title" href="/2026/03/29/decisive-making-personality/"><span class="title">告别信息过载：我的决策型人格自救指南</span></a><a class="item title" href="/2026/03/28/time-planning/"><span class="title">精力管理｜从理想主义到理性成长，我踩过的坑与收获</span></a><a class="item title" href="/2026/03/08/initiative-thinking/"><span class="title">近期的几点思考</span></a><a class="item title" href="/2026/01/31/study-method/"><span class="title">学习方法反思：落地才是知识的终极意义</span></a></div></widget>
+<widget class="widget-wrapper recent post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2026/04/28/movie-mind-rag/"><span class="title">从零到一搭建电影 RAG 系统：我的工程血泪史与工业实践复盘</span></a><a class="item title" href="/2026/04/13/rss-summary/"><span class="title">从零搭建个人AI信息简报系统：RSSHub + OpenClaw + DeepSeek 实战</span></a><a class="item title" href="/2026/02/04/claude-code/"><span class="title">如何将国产模型接入Claude Code</span></a><a class="item title" href="/2026/01/17/hexo-blog-build/"><span class="title">如何搭建Hexo个人博客(Windows 版)</span></a><a class="item title" href="/2026/03/29/decisive-making-personality/"><span class="title">告别信息过载：我的决策型人格自救指南</span></a><a class="item title" href="/2026/03/28/time-planning/"><span class="title">精力管理｜从理想主义到理性成长，我踩过的坑与收获</span></a><a class="item title" href="/2026/03/08/initiative-thinking/"><span class="title">近期的几点思考</span></a><a class="item title" href="/2026/01/31/study-method/"><span class="title">学习方法反思：落地才是知识的终极意义</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/Ashley-Linn" target="_blank" rel="external nofollow noopener noreferrer"><img src="/images/icons/github.svg" width="32" height="32" style="color: #000000; margin-right:8px; vertical-align:middle; pointer-events: none;"></a><a class="social" href="https://www.zhihu.com/people/ha-a-ha-38-49" target="_blank" rel="external nofollow noopener noreferrer"><img src="/images/icons/zhihu.svg" width="32" height="32" style="color: #000000; margin-right:8px; vertical-align:middle; pointer-events: none;"></a><a class="social" href="https://www.xiaohongshu.com/user/profile/65f56b57000000000600fe05" target="_blank" rel="external nofollow noopener noreferrer"><img src="/images/icons/xiaohongshu.svg" width="32" height="32" style="color: #000000; margin-right:8px; vertical-align:middle; pointer-events: none;"></a><a class="social" href="/images/wechat-qrcode.jpg" rel="noopener noreferrer"><img src="/images/icons/wechat.svg" width="32" height="32" style="color: #000000; margin-right:8px; vertical-align:middle; pointer-events: none;"></a></div></footer>
 </div></aside><div class="l_main" id="main">
@@ -199,7 +199,7 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E6%8A%80%E6%9C%AF%E5%AE%9E%E8%B7%B5/">技术实践</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2026-04-13T12:51:20.844Z">2026-04-13</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2026-04-13T13:03:26.511Z">2026-04-13</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2026-04-13T12:51:20.844Z">2026-04-13</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2026-04-28T09:50:00.478Z">2026-04-28</time></span></div></div></div>
     
     <div class="bottom only-title">
       
@@ -519,6 +519,9 @@
 <li>掌握了大模型 API 调用、飞书机器人开发、Docker 基本操作、Python 调试技巧。</li>
 <li>培养了“问题拆解 → 假设 → 验证 → 迭代”的工程思维。</li>
 </ul>
+<blockquote>
+<p>这个项目的代码现在看起来很普通，但当时花了整整三天才跑通。回头看，正是那三天里的每一次报错、每一次重试，让我对 API 调用、环境配置、错误处理有了体感。没有什么知识是一蹴而就的，但每迈过一个坎，下一个坎就会矮一些。</p>
+</blockquote>
 <hr>
 <blockquote>
 <p><strong>附：<a target="_blank" rel="noopener" href="https://github.com/Ashley-Linn/rss-summary-openclaw">GitHub 仓库：Ashley-Linn&#x2F;rss-summary-openclaw</a></strong></p>
@@ -548,7 +551,7 @@
     </section>
     </div>
 
-<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2026/03/29/decisive-making-personality/">告别信息过载：我的决策型人格自救指南</a></div></section></div>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2026/04/28/movie-mind-rag/">从零到一搭建电影 RAG 系统：我的工程血泪史与工业实践复盘</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2026/03/29/decisive-making-personality/">告别信息过载：我的决策型人格自救指南</a></div></section></div>
 
 
 

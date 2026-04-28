@@ -1,0 +1,1236 @@
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.33.1" theme-name="Stellar" theme-version="1.33.1">
+  
+  
+  <meta name="generator" content="Hexo 7.3.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  <meta name="theme-color" content="#f9fafb">
+  <title>从零到一搭建电影 RAG 系统：我的工程血泪史与工业实践复盘 - 木予</title>
+
+  
+    <meta name="description" content="一个月踩坑实录：完美规划、模型替换、语义分块、翻译血泪、双表对齐、RAGAS评估...完整记录一个RAG系统的落地全过程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零到一搭建电影 RAG 系统：我的工程血泪史与工业实践复盘">
+<meta property="og:url" content="https://ashley-linn.github.io/2026/04/28/movie-mind-rag/">
+<meta property="og:site_name" content="木予">
+<meta property="og:description" content="一个月踩坑实录：完美规划、模型替换、语义分块、翻译血泪、双表对齐、RAGAS评估...完整记录一个RAG系统的落地全过程。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-04-28T10:05:00.000Z">
+<meta property="article:modified_time" content="2026-04-28T10:05:02.203Z">
+<meta property="article:author" content="木予">
+<meta property="article:tag" content="RAG">
+<meta property="article:tag" content="电影问答">
+<meta property="article:tag" content="向量检索">
+<meta property="article:tag" content="工程实践">
+<meta property="article:tag" content="技术复盘">
+<meta name="twitter:card" content="summary">
+  
+  
+  
+  <meta name="keywords" content="RAG,电影问答,向量检索,工程实践,技术复盘">
+
+  <!-- feed -->
+  
+
+  <link rel="stylesheet" href="/css/main.css?v=1.33.1">
+
+
+  
+
+  
+
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"木予","sameAs":[]},"dateCreated":"2026-04-28T18:05:00+08:00","dateModified":"2026-04-28T18:05:02+08:00","datePublished":"2026-04-28T18:05:00+08:00","description":"","headline":"从零到一搭建电影 RAG 系统：我的工程血泪史与工业实践复盘","mainEntityOfPage":{"@type":"WebPage","@id":"https://ashley-linn.github.io/2026/04/28/movie-mind-rag/"},"publisher":{"@type":"Organization","name":"木予","sameAs":[]},"url":"https://ashley-linn.github.io/2026/04/28/movie-mind-rag/","keywords":"RAG, 电影问答, 向量检索, 工程实践, 技术复盘","image":[]}</script>
+  <link rel="shortcut icon" href="/favicon.png" type="image/x-icon"><style>
+  /* ==================== 正文样式 ==================== */
+  /* 核心：正文强制纯黑（保证阅读） */
+  .markdown-body, .post-content, .page-content, .md-text {
+    color: #000000 !important; 
+    font-size: 16px !important;
+    line-height: 1.8 !important;
+  }
+
+  /* ==================== 导航栏样式 ==================== */
+  /* 中间导航栏标题加粗 - 精确选择器 */
+  .navbar-container nav.post a,
+  .nav.post a {
+    font-weight: bold !important;
+    font-size: 17px !important;
+    color: #000000 !important;
+  }
+
+  /* 激活的导航标签样式 */
+  .navbar-container nav.post a.active,
+  .nav.post a.active {
+    border-bottom: 2px solid #2E7D32 !important; /* 绿色下划线 */
+    color: #2E7D32 !important; /* 绿色文字 */
+  }
+
+  /* 导航栏悬停效果 */
+  .navbar-container nav.post a:hover,
+  .nav.post a:hover {
+    color: #2E7D32 !important; /* 悬停时绿色 */
+    opacity: 0.9 !important;
+  }
+
+  /* ==================== 侧边栏菜单样式 ==================== */
+  /* 侧边栏菜单：绿色装饰 + 纯黑正文逻辑不冲突 */
+  .menubar-item {
+    color: #006400 !important; /* 深绿（在黄色上更显眼） */
+    font-weight: 500 !important; /* 加粗，避免被黄色盖住 */
+  }
+  .menubar-item.active, .menubar-item:hover {
+    color: #000000 !important; /* 激活时纯黑，对比更明显 */
+    background-color: rgba(255, 255, 255, 0.8) !important; /* 白色背景块，隔开黄色 */
+    border-right: 2px solid #008000 !important;
+  }
+  
+  /* ==================== 链接通用样式 ==================== */
+  /* 链接：默认纯黑（和正文统一），悬浮亮蓝（提示点击） */
+  a { 
+    color: #000000 !important; 
+    text-decoration: none !important; 
+  }
+  a:hover { 
+    color: #1A73E8 !important; 
+  }
+
+  /* ==================== 分类标签样式 ==================== */
+  /* 分类标签：浅蓝/浅绿背景 + 纯黑文字（装饰+可读） */
+  .category-label {
+    background-color: var(--accent) !important;
+    color: #000000 !important;
+    border: 1px solid #e5e5e5 !important;
+  }        
+  
+  /* ==================== 页脚图标样式 ==================== */
+  /* 针对社交图标的容器 */
+  .social-wrap,
+  .footer-social,
+  .footer .social-wrap {
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    height: auto !important;
+  }
+  
+  /* 针对每个社交图标链接 */
+  .social-wrap a.social,
+  .footer-social a,
+  .footer a[href*="github"],
+  .footer a[href*="mailto"] {
+    display: inline-block !important;
+    line-height: 1 !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* 强制图标大小（最高优先级） */
+  .social-wrap img,
+  .social-wrap img[width="32"],
+  .social-wrap img[height="32"],
+  .footer-social img,
+  .footer img[src*="github.svg"],
+  .footer img[src*="envelope.svg"] {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+  
+  /* ==================== 站点地图样式 ==================== */
+  /* 加粗所有导航地图组标题 */
+  .sitemap-group > .fs15 {
+    font-weight: bold !important;
+    color: #333;
+  } 
+    
+</style>
+
+</head>
+<body>
+
+<div class="l_body content" id="start" layout="post" type="tech" ><aside class="l_left"><div class="sidebg"></div><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/images/avatar.png" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main">木予</div><div class="sub normal cap">Vitae vestigia linere</div><div class="sub hover cap" style="opacity:0"> 迹途</div></a></div></header>
+
+<div class="nav-area">
+
+<nav class="menu dis-select"><a class="nav-item" title="技术实践" href="/tech/" style="color:#165DFF"><img src="/images/icons/tech.svg" width="30" height="30" style="color: var(--theme);"/></a><a class="nav-item" title="成长印记" href="/growth/" style="color:#4080FF"><img src="/images/icons/growth.svg" width="30" height="30" style="color: var(--theme);"/></a><a class="nav-item" title="生活札记" href="/life/" style="color:#00B42A"><img src="/images/icons/life.svg" width="30" height="30" style="color: var(--theme);"/></a><a class="nav-item" title="状态管理" href="/manage/" style="color:#7CB305"><img src="/images/icons/manage.svg" width="30" height="30" style="color: var(--theme);"/></a></nav>
+</div>
+<div class="widgets">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+
+<widget class="widget-wrapper recent post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2026/04/28/movie-mind-rag/"><span class="title">从零到一搭建电影 RAG 系统：我的工程血泪史与工业实践复盘</span></a><a class="item title" href="/2026/04/13/rss-summary/"><span class="title">从零搭建个人AI信息简报系统：RSSHub + OpenClaw + DeepSeek 实战</span></a><a class="item title" href="/2026/02/04/claude-code/"><span class="title">如何将国产模型接入Claude Code</span></a><a class="item title" href="/2026/01/17/hexo-blog-build/"><span class="title">如何搭建Hexo个人博客(Windows 版)</span></a><a class="item title" href="/2026/03/29/decisive-making-personality/"><span class="title">告别信息过载：我的决策型人格自救指南</span></a><a class="item title" href="/2026/03/28/time-planning/"><span class="title">精力管理｜从理想主义到理性成长，我踩过的坑与收获</span></a><a class="item title" href="/2026/03/08/initiative-thinking/"><span class="title">近期的几点思考</span></a><a class="item title" href="/2026/01/31/study-method/"><span class="title">学习方法反思：落地才是知识的终极意义</span></a></div></widget>
+</div>
+<footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/Ashley-Linn" target="_blank" rel="external nofollow noopener noreferrer"><img src="/images/icons/github.svg" width="32" height="32" style="color: #000000; margin-right:8px; vertical-align:middle; pointer-events: none;"></a><a class="social" href="https://www.zhihu.com/people/ha-a-ha-38-49" target="_blank" rel="external nofollow noopener noreferrer"><img src="/images/icons/zhihu.svg" width="32" height="32" style="color: #000000; margin-right:8px; vertical-align:middle; pointer-events: none;"></a><a class="social" href="https://www.xiaohongshu.com/user/profile/65f56b57000000000600fe05" target="_blank" rel="external nofollow noopener noreferrer"><img src="/images/icons/xiaohongshu.svg" width="32" height="32" style="color: #000000; margin-right:8px; vertical-align:middle; pointer-events: none;"></a><a class="social" href="/images/wechat-qrcode.jpg" rel="noopener noreferrer"><img src="/images/icons/wechat.svg" width="32" height="32" style="color: #000000; margin-right:8px; vertical-align:middle; pointer-events: none;"></a></div></footer>
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E6%8A%80%E6%9C%AF%E5%AE%9E%E8%B7%B5/">技术实践</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2026-04-28T10:05:00.000Z">2026-04-28</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2026-04-28T10:05:02.203Z">2026-04-28</time></span></div></div></div>
+    
+    <div class="bottom only-title">
+      
+      <div class="text-area">
+        <h1 class="text title"><span>从零到一搭建电影 RAG 系统：我的工程血泪史与工业实践复盘</span></h1>
+        
+      </div>
+    </div>
+    
+  </div>
+  </div><article class="md-text content"><blockquote>
+<p>花了一个月，踩了好多大坑。<br>一开始我沉迷完美规划：监控、缓存、单元测试、架构日志……结果代码完全看不懂。<br>后来发现模型不对，换模型后信心来了，却又被分块逻辑打回原形，越改越乱。<br>返璞归真重构项目，从数据清洗到双表对齐，翻译环节又坑了我：10块钱只跑了部分、Ctrl+C毁掉pickle文件、没有断点续传……<br>总算跑通MVP，最后引入RAGAS评估，指标低到怀疑人生，才发现检索器里藏着召回过滤——评估本应第一天就做。&gt;<br>本文完整记录一个普通开发者如何从这些“软硬坑”中一步步走出来，最终建成了一个可量化、可落地的电影问答RAG系统。</p>
+</blockquote>
+<hr>
+<h2 id="一、为什么要做这个项目？"><a href="#一、为什么要做这个项目？" class="headerlink" title="一、为什么要做这个项目？"></a>一、为什么要做这个项目？</h2><p>我一直对「检索增强生成」很感兴趣，但没有一个自己动手的全流程经历。电影剧情数据集（维基百科电影剧情，约 3.5 万部）结构简单、语义丰富，非常适合作为 RAG 的试验场。</p>
+<p>目标很朴素：</p>
+<ul>
+<li>用户输入自然语言（如“时间旅行科幻电影”），系统能返回相关电影列表；</li>
+<li>并能基于检索到的剧情，用大模型回答具体问题；</li>
+<li>最终能用指标量化评估系统好坏。</li>
+</ul>
+<p>听起来不难，但做起来才发现：<strong>工程实践中的坑，比算法本身多得多</strong>。</p>
+<hr>
+<h2 id="二、第一阶段：完美主义型规划，结果完全看不懂代码"><a href="#二、第一阶段：完美主义型规划，结果完全看不懂代码" class="headerlink" title="二、第一阶段：完美主义型规划，结果完全看不懂代码"></a>二、第一阶段：完美主义型规划，结果完全看不懂代码</h2><p>一开始拿到一个现成的电影搜索项目，心想：我要把它改造成真正的 RAG。<br>于是开始疯狂规划：监控、缓存、单元测试、集成测试、项目架构、日志配置、单例模式……<br>甚至觉得用 <code>claude Code</code>  一写就能跑通。</p>
+<p><strong>现实</strong>：代码完全看不懂，不知道从哪下手。</p>
+<p><strong>实际做的努力</strong>：</p>
+<ul>
+<li>一行行拆解项目结构，理解每个模块在干嘛</li>
+<li>补习 <code>pytest</code>、<code>fixture</code>、测试执行脚本</li>
+<li>学习缓存实现、单例模式等概念</li>
+</ul>
+<p><strong>阶段性成果</strong>：成功启动了前端界面，也能做检索尝试。<br>但完全无法评估检索结果好坏，大脑一片混乱。</p>
+<p><strong>唯一收获</strong>：在这个“硬啃”过程中积累了很多工程化知识概念，为后面铺了路。</p>
+<hr>
+<h2 id="三、第二阶段：换对模型，信心第一次起来"><a href="#三、第二阶段：换对模型，信心第一次起来" class="headerlink" title="三、第二阶段：换对模型，信心第一次起来"></a>三、第二阶段：换对模型，信心第一次起来</h2><p>某天发现检索返回的相似度极低（只有 0.3 左右）。<br>我最初用的是大家常推荐的轻量模型 **<code>all-MiniLM-L6-v2</code>**。它虽然支持多语言，但本质上更偏向英文语义，对中、英混合查询的跨语言对齐能力较弱。<br>我的数据是英文剧情，但用户查询往往是中文（或中英混合），这就导致跨语言检索效果很差。</p>
+<p><strong>解决</strong>：换为专门针对跨语言任务的多语言嵌入模型 **<code>paraphrase-multilingual-MiniLM-L12-v2</code>**。<br>只换一个模型名 + 重建索引（约 1 小时），相似度立竿见影提升到 <strong>0.7 以上</strong>。<br>这是我整个项目中最具性价比的一次优化。</p>
+<p><strong>换模型后发现的遗留问题（“语言混杂陷阱”）</strong>：</p>
+<ul>
+<li>纯英文或纯中文查询：相似度都很高，两者表现类似。</li>
+<li><strong>中英混合查询（如“time travel 电影”）</strong>：在小规模脚本测试中，相似度有时甚至更高；但在大规模真实数据统计时，却出现了明显下降。</li>
+</ul>
+<p>根本原因：多语言模型对混合语言输入的鲁棒性有限，混合输入会被映射到“模糊区域”，既不完全靠近英文剧情也不完全靠近中文剧情，导致余弦相似度降低。小样本测试可能因偶然匹配或数据分布偏差掩盖了这一真实问题，大规模统计才能暴露本质。</p>
+<p>考虑到系统主要面向中文用户，纯中文效果已可接受，且修复混合查询的成本较高，我决定暂不处理，只做记录。</p>
+<p><strong>教训</strong>：</p>
+<ul>
+<li>跨语言 RAG 中，<strong>嵌入模型的跨语言能力优先于分块、重排等任何其他优化</strong>。</li>
+<li>小样本测试可能掩盖真实问题，必须在大规模数据上验证。</li>
+<li>不是所有坑都要立即填——“足够好”有时比“完美”更明智。</li>
+</ul>
+<hr>
+<h2 id="四、第三阶段：分块逻辑，从暴力到语义边界"><a href="#四、第三阶段：分块逻辑，从暴力到语义边界" class="headerlink" title="四、第三阶段：分块逻辑，从暴力到语义边界"></a>四、第三阶段：分块逻辑，从暴力到语义边界</h2><p>模型对了，但检索结果依然不理想——尤其长剧情电影，返回的块前言不搭后语。</p>
+<h3 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h3><ul>
+<li>固定 <code>chunk_size=800</code>，<code>overlap=100</code>，对所有剧情一视同仁。</li>
+<li>长剧情（&gt;5000 字符）被切成几十个碎片，因果链断裂。</li>
+<li>短剧情（&lt;200 字符）被过度切分或丢弃。</li>
+<li>经常出现单词被切断。</li>
+</ul>
+<h3 id="解决方案：语义边界自适应分块"><a href="#解决方案：语义边界自适应分块" class="headerlink" title="解决方案：语义边界自适应分块"></a>解决方案：语义边界自适应分块</h3><p>我手写了一个 <code>SmartTextSplitter</code>，采用<strong>迭代队列</strong>方式，按分隔符优先级从大到小切分，并尽量拼接，保证不切断句子。核心逻辑：</p>
+<table>
+<thead>
+<tr>
+<th align="left">策略</th>
+<th align="left">实现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>短文档保护</strong></td>
+<td align="left">完整文档且长度 &lt; 200 字符 → 直接整块，不切</td>
+</tr>
+<tr>
+<td align="left"><strong>优先级分隔符</strong></td>
+<td align="left"><code>\n\n</code> → <code>\n</code> → <code>.</code> <code>!</code> <code>?</code> → <code>;</code> <code>,</code> → 空格，逐级切分</td>
+</tr>
+<tr>
+<td align="left"><strong>尽量拼接</strong></td>
+<td align="left">在不超过 <code>chunk_size</code> 的前提下，尽可能多地合并同一级分隔符切出的片段</td>
+</tr>
+<tr>
+<td align="left"><strong>兜底暴力切分</strong></td>
+<td align="left">若所有分隔符都不存在，才按固定长度切分（此时可能切断单词，极少发生）</td>
+</tr>
+<tr>
+<td align="left"><strong>碎片合并</strong></td>
+<td align="left">合并长度 &lt; 40 字符的碎片到前一块（不超过 <code>chunk_size</code>）</td>
+</tr>
+<tr>
+<td align="left"><strong>最后统一加重叠</strong></td>
+<td align="left">所有分块完成后，只在最后一步添加一次重叠，且在空格处断开，避免切词</td>
+</tr>
+</tbody></table>
+<p><strong>效果</strong>：块完整性大幅提升，检索返回的片段可读性明显增强，大部分剧情保持在 3~5 个语义完整的块内。</p>
+<h3 id="评估分块质量（事后才做）"><a href="#评估分块质量（事后才做）" class="headerlink" title="评估分块质量（事后才做）"></a>评估分块质量（事后才做）</h3><p>跑 <code>evaluate_chunks.py</code> 发现：</p>
+<ul>
+<li>平均长度 620 字符（偏长，但仍在模型窗口内）</li>
+<li>完整句子结尾比例仅 76% —— 部分因原始数据本身缺少句号，不是分块算法的问题。</li>
+<li>少数单词切断现象（因回退到暴力切分，且仅在极特殊文本中触发）。</li>
+</ul>
+<h3 id="被忽略的基建：数据清洗后必须输出报告"><a href="#被忽略的基建：数据清洗后必须输出报告" class="headerlink" title="被忽略的基建：数据清洗后必须输出报告"></a>被忽略的基建：数据清洗后必须输出报告</h3><p>在重构项目时，我做了数据清洗、去重、生成唯一 <code>mvid</code>。但在项目后期回顾时，我才意识到：<strong>我从来没有在清洗后生成一份数据质量报告</strong>（比如缺失值分布、剧情长度分布、异常样本展示）。<br>这是所有数据工程的基础——<strong>你必须足够了解自己的数据</strong>。如果清洗后仍有大量脏数据（比如剧情为空的电影、异常标点的句子），会直接污染后续分块、检索、摘要生成。<br>建议以后任何项目，数据清洗完成后都要输出一份简易报告（可用 <code>pandas-profiling</code> 或自己写统计脚本），并抽样人工检查。这一步被我忽略了，但却是最不该省的。</p>
+<p><strong>教训</strong>：分块质量评估不应该等全部开发完才做，<strong>一开始就要建基线</strong>。而数据清洗的质量评估同样应该在第一步就完成。</p>
+<hr>
+<h2 id="五、第四阶段：摘要生成，从-LSA-到位置加权-TextRank"><a href="#五、第四阶段：摘要生成，从-LSA-到位置加权-TextRank" class="headerlink" title="五、第四阶段：摘要生成，从 LSA 到位置加权 TextRank"></a>五、第四阶段：摘要生成，从 LSA 到位置加权 TextRank</h2><p>原始剧情太长（平均 2000+ 字符），需要生成短摘要展示给用户。</p>
+<h3 id="最初方案：LSA（潜在语义分析）"><a href="#最初方案：LSA（潜在语义分析）" class="headerlink" title="最初方案：LSA（潜在语义分析）"></a>最初方案：LSA（潜在语义分析）</h3><p>最初尝试了 LSA 抽取式摘要。</p>
+<ul>
+<li>速度快，实现简单。</li>
+<li>但生成的摘要<strong>常常从中间开始</strong>，缺少故事开头；句子之间逻辑跳跃，甚至出现“乱七八糟”的拼凑感。</li>
+<li>超长文本需要分块多次 SVD，效率低，且质量并没有明显改善。</li>
+</ul>
+<p>显然，LSA 不适合电影剧情这种强叙事、强时序的文本。</p>
+<h3 id="最终方案：位置加权-TextRank-强制保留第一句"><a href="#最终方案：位置加权-TextRank-强制保留第一句" class="headerlink" title="最终方案：位置加权 TextRank + 强制保留第一句"></a>最终方案：位置加权 TextRank + 强制保留第一句</h3><p>放弃 LSA，改用 <strong>位置加权 TextRank</strong>，并在代码中<strong>强制保留第一句话</strong>（无论算法得分如何）。核心参数：</p>
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">值</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>top_n</code></td>
+<td align="left">5</td>
+<td align="left">抽取 5 个句子</td>
+</tr>
+<tr>
+<td align="left"><code>pos_weight</code></td>
+<td align="left">0.3</td>
+<td align="left">30% 分数来自位置先验（指数衰减）</td>
+</tr>
+<tr>
+<td align="left"><code>max_len</code></td>
+<td align="left">800 字符</td>
+<td align="left">确保摘要不频繁截断</td>
+</tr>
+<tr>
+<td align="left">强制第一句</td>
+<td align="left">是</td>
+<td align="left">无论 PageRank 分数，第一句必须入选</td>
+</tr>
+</tbody></table>
+<p><strong>效果</strong>：摘要连贯性、信息完整性明显优于 LSA，且不再“从中间开始”，用户可读性大幅提升。</p>
+<h3 id="算法对比（精简版）"><a href="#算法对比（精简版）" class="headerlink" title="算法对比（精简版）"></a>算法对比（精简版）</h3><ul>
+<li><strong>TextRank</strong>：图排序，句子作为节点，相似度为边，跑 PageRank。</li>
+<li><strong>LexRank</strong>：类似 TextRank，但使用 TF‑IDF 加权余弦相似度。</li>
+<li><strong>位置加权 TextRank</strong>：额外给前面句子指数衰减先验，更适合强叙事文本。</li>
+</ul>
+<p><strong>教训</strong>：摘要生成必须结合实际数据特点（电影剧情强时序），不能只依赖通用库的默认参数。如果发现算法效果明显不合理，要果断更换方案，而不是硬调参数。</p>
+<hr>
+<h2 id="六、第五阶段：翻译，折腾又花钱"><a href="#六、第五阶段：翻译，折腾又花钱" class="headerlink" title="六、第五阶段：翻译，折腾又花钱"></a>六、第五阶段：翻译，折腾又花钱</h2><p>为了展示中文摘要，需要将英文摘要翻译成中文。最初想全量翻译 3.5 万部，但折腾了太多坑，最终只选了 2000 部进行效果验证。</p>
+<h3 id="血泪折腾史"><a href="#血泪折腾史" class="headerlink" title="血泪折腾史"></a>血泪折腾史</h3><ul>
+<li><strong>百度翻译</strong>：先免费额度，后又充了 10 块钱，额度用的很快，没跑完就失效。没有断点续传，白跑白费钱。</li>
+<li><strong>有道翻译</strong>：为了免费额度，换了有道，结果 API 接入就卡住了：<strong>签名必须按官方隐藏规则</strong>（前 10 字符 + 文本长度 + 后 10 字符），否则一直报错。好不容易调通，又因为保存策略不对，频繁 <code>Ctrl+C</code> 中断直接毁掉 <code>.pkl</code> 存档文件（<code>wb</code> 模式打开文件瞬间清空，新内容没写入就中断 → 文件残缺）。</li>
+<li><strong>离线翻译（MarianMT）</strong>：想省掉 API 费用，试了 <code>Helsinki-NLP/opus-mt-en-zh</code>。质量实在太差，译文不通顺，无法用于展示。</li>
+<li><strong>腾讯云翻译</strong>：最后尝试腾讯云 API。接入过程也挺折腾：需要开通子账户、配置密钥。好在<strong>有 500 万字符免费额度</strong>，足够覆盖我的验证量。最终成功跑通，译文质量可接受，支持断点续传、原子保存，完成了 2000 部的翻译验证。</li>
+</ul>
+<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><ul>
+<li><strong>原子保存</strong>：先写临时文件，<code>os.replace()</code> 再重命名，防止中断毁档。</li>
+<li><strong>断点续传</strong>：每翻译一条就保存一次，记录已翻译的 <code>mvid</code>，重启脚本不重复翻译。</li>
+<li><strong>最终选择</strong>：腾讯云翻译（免费额度 + 质量稳定），放弃全量翻译，仅验证 2000 条。</li>
+</ul>
+<h3 id="翻译质量评估"><a href="#翻译质量评估" class="headerlink" title="翻译质量评估"></a>翻译质量评估</h3><p>我没有做自动指标（BLEU 太麻烦），而是采用<strong>人工抽样评估</strong>：随机抽取 50 条摘要，对比中英文语义一致性，确认腾讯云译文可接受。</p>
+<p><strong>经验</strong>：批量翻译任务，<strong>第一原则是原子保存 + 断点续传</strong>，否则钱和时间都白花。不要迷信离线模型，质量不达标一样没用。接入第三方 API 时，预留足够的时间折腾签名、子账户等坑。优先选择有免费额度的服务，可以大幅降低试错成本。</p>
+<h2 id="七、第六阶段：检索优化从类型微弱加权到双表对齐与混合排序"><a href="#七、第六阶段：检索优化从类型微弱加权到双表对齐与混合排序" class="headerlink" title="七、第六阶段：检索优化从类型微弱加权到双表对齐与混合排序"></a>七、第六阶段：检索优化从类型微弱加权到双表对齐与混合排序</h2><h3 id="早期弯路：类型微弱加权与放弃"><a href="#早期弯路：类型微弱加权与放弃" class="headerlink" title="早期弯路：类型微弱加权与放弃"></a>早期弯路：类型微弱加权与放弃</h3><p>在优化检索时，我发现前端返回的电影类型与剧情经常对不上。于是我统计了高频类型（科幻、喜剧、悬疑等），想给匹配类型的电影加上微小权重（0.02）。<br>但实测发现，<strong>类型字段本身质量很差</strong>：即便统计了分布，加权后检索质量不升反降。<br>我一度不想放弃，又仔细评估了字段质量，发现确实不可靠。最终决定<strong>完全放弃类型加权</strong>，只在用户界面增加一条备注：“官方标签可能与剧情不完全匹配”，提醒用户自行判断。</p>
+<p>这个插曲让我明白：不是所有字段都适合参与排序，低质量数据引入只会带来噪声。</p>
+<h3 id="第一步：标题硬置顶"><a href="#第一步：标题硬置顶" class="headerlink" title="第一步：标题硬置顶"></a>第一步：标题硬置顶</h3><p>既然类型不可靠，那用户搜<strong>电影名</strong>时该怎么办？<br>我加了一个<strong>硬规则</strong>：如果查询词与某部电影的标题完全匹配（忽略大小写），无论剧情相似度高低，直接将这部电影置顶。<br>这解决了“搜电影名找不到”的痛点，但对“剧情描述”没有帮助。</p>
+<h3 id="第二步：标题向量检索-RRF-融合"><a href="#第二步：标题向量检索-RRF-融合" class="headerlink" title="第二步：标题向量检索 + RRF 融合"></a>第二步：标题向量检索 + RRF 融合</h3><p>仅仅硬置顶还不够。用户可能搜“悬疑电影”，如果某电影标题里恰好有“悬疑”，也应该被召回。<br>于是我为所有电影标题单独建了一个 FAISS 索引。检索时，同时得到<strong>剧情向量排序列表</strong>和<strong>标题向量排序列表</strong>，用 <strong>RRF（倒数排名融合）</strong> 合并两个列表。<br>RRF 不用归一化分数，只依赖排名，实现简单且效果稳定。<br>此外，<strong>标题完全匹配时的硬置顶逻辑依然保留</strong>，作为最高优先级。</p>
+<p><strong>效果</strong>：电影名查询命中率从“经常找不到”变成“永远第一”，剧情描述查询也能借助标题语义辅助，召回更加全面。</p>
+<h3 id="最终架构：双表对齐（索引-元数据分离）"><a href="#最终架构：双表对齐（索引-元数据分离）" class="headerlink" title="最终架构：双表对齐（索引-元数据分离）"></a>最终架构：双表对齐（索引-元数据分离）</h3><p>在优化检索的过程中，我还重构了底层存储：</p>
+<ul>
+<li><strong>FAISS 索引</strong>只存向量，以及一个与向量顺序一致的 <code>mvid_list</code>。</li>
+<li><strong>元数据</strong>（标题、年份、摘要、翻译等）独立存放在 <code>movie_info</code> 字典中，以 <code>mvid</code> 为主键。</li>
+</ul>
+<p><strong>优点</strong>：</p>
+<ul>
+<li>更新摘要或翻译<strong>无需重建向量索引</strong>。</li>
+<li>可并行维护多个版本元数据（LSA &#x2F; TextRank &#x2F; 中英文），检索时只需切换加载文件。</li>
+<li>索引文件小，部署方便。</li>
+</ul>
+<hr>
+<h2 id="八、第七阶段：评估体系，RAGAS-的坑与顿悟"><a href="#八、第七阶段：评估体系，RAGAS-的坑与顿悟" class="headerlink" title="八、第七阶段：评估体系，RAGAS 的坑与顿悟"></a>八、第七阶段：评估体系，RAGAS 的坑与顿悟</h2><p>项目快做完时，我才开始引入 RAGAS 框架做量化评估。</p>
+<h3 id="踩坑-1：测试集构建——LLM-生成完全不行"><a href="#踩坑-1：测试集构建——LLM-生成完全不行" class="headerlink" title="踩坑 1：测试集构建——LLM 生成完全不行"></a>踩坑 1：测试集构建——LLM 生成完全不行</h3><p>一开始我偷懒，用 LLM 自动生成 <code>(question, ground_truth, contexts)</code>。结果完全不行：生成的问题与答案模糊，无法反映真实检索效果。<br><strong>顿悟</strong>：评估数据集必须<strong>手工构建</strong>，至少 10~20 条黄金样本。<code>ground_truth</code> 要从原文直接截取，长度与预期答案相近。</p>
+<h3 id="数据集构建原则（重要）"><a href="#数据集构建原则（重要）" class="headerlink" title="数据集构建原则（重要）"></a>数据集构建原则（重要）</h3><ul>
+<li><strong>答案必须清晰、无歧义</strong>：每个问题的标准答案必须能从原文直接定位，不能模糊。  </li>
+<li><strong>引入负样本</strong>：随机添加一些与问题不相关的电影剧情，测试检索器的拒答能力。  </li>
+<li><strong>核心基线必须手工标注</strong>：10~20 条黄金样本是基石，无论如何不能省。  </li>
+<li><strong>后续扩展可半自动</strong>：  <ul>
+<li>模板化生成（如从结构化字段抽取 <code>导演</code>、<code>年份</code> 等事实型 QA）。  </li>
+<li>使用 RAGAS 自带的 <code>TestsetGenerator</code> 基于文档生成合成数据。  </li>
+<li>引入外部 QA 数据集（如 DoQA）进行泛化验证。</li>
+</ul>
+</li>
+<li><strong>人工抽检不可替代</strong>：任何自动生成的数据集，最终都要人工抽查 20% 以上，确保质量。</li>
+</ul>
+<h3 id="踩坑-2：检索器返回的内容与索引不一致"><a href="#踩坑-2：检索器返回的内容与索引不一致" class="headerlink" title="踩坑 2：检索器返回的内容与索引不一致"></a>踩坑 2：检索器返回的内容与索引不一致</h3><p>索引里存的是完整分块（<code>chunk_text</code>），但检索器返回给生成器的顺序是：<br><code>Plot_summary_zh</code> → <code>Plot_summary</code> → <code>Plot_cleaned</code> 前 350 字符。<br>这导致生成器接收到的信息严重丢失，端到端评估指标极低。  </p>
+<p>我单独测试了生成器（直接给完美上下文），其答案质量可达 90% 以上；而标题检索的召回率本身也不理想。<br><strong>最终我接受了这个现状</strong>，没有进一步优化检索器返回策略，因为项目已近收尾，且核心功能已可用。</p>
+<h3 id="测出的真实数据（端到端）"><a href="#测出的真实数据（端到端）" class="headerlink" title="测出的真实数据（端到端）"></a>测出的真实数据（端到端）</h3><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>得分</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>context_precision</td>
+<td>0.28</td>
+<td>检索到的 3 个片段中，真正相关的比例低</td>
+</tr>
+<tr>
+<td>context_recall</td>
+<td>0.30</td>
+<td>标准答案的关键信息，只有 30% 被检索到</td>
+</tr>
+<tr>
+<td>faithfulness</td>
+<td>NaN</td>
+<td>生成答案多为“无相关信息”</td>
+</tr>
+<tr>
+<td>answer_relevancy</td>
+<td>0.20</td>
+<td>答案与问题相关性差</td>
+</tr>
+</tbody></table>
+<p><strong>顿悟</strong>：瓶颈完全在检索环节。生成器本身很强，但被不充分的上下文拖累。</p>
+<h3 id="RAGAS-使用教训"><a href="#RAGAS-使用教训" class="headerlink" title="RAGAS 使用教训"></a>RAGAS 使用教训</h3><ul>
+<li><strong>版本锁定</strong>：RAGAS 框架更新频繁，接口经常变动。我最终锁定 **<code>ragas==0.2.2</code>**，避免升级带来的兼容问题。  </li>
+<li>**必须提供 <code>ideal_contexts</code>**：评估 <code>context_recall</code> 需要手工标注希望检索器返回的证据句。  </li>
+<li><strong>评估应该从项目第一天就开始</strong>：先裸跑基线，每加一个优化就测一次，而不是最后才补。</li>
+</ul>
+<h2 id="九、第八阶段：部署与工程化，异步加载模型的致命坑"><a href="#九、第八阶段：部署与工程化，异步加载模型的致命坑" class="headerlink" title="九、第八阶段：部署与工程化，异步加载模型的致命坑"></a>九、第八阶段：部署与工程化，异步加载模型的致命坑</h2><h3 id="问题现象-1"><a href="#问题现象-1" class="headerlink" title="问题现象"></a>问题现象</h3><p>用 FastAPI + <code>uvicorn</code> 启动服务，模型加载时报错：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RuntimeError: Cannot send a request, as the client has been closed.</span><br></pre></td></tr></table></figure>
+
+<h3 id="根源"><a href="#根源" class="headerlink" title="根源"></a>根源</h3><ul>
+<li><code>SentenceTransformer</code> 底层用 <code>httpx</code> 发请求检查远程更新，即使本地有缓存。</li>
+<li>在 <code>run_in_executor</code> 的线程池中初始化模型，<code>httpx.Client</code> 生命周期与事件循环冲突，导致连接关闭。</li>
+</ul>
+<h3 id="我的踩坑与最终有效方案"><a href="#我的踩坑与最终有效方案" class="headerlink" title="我的踩坑与最终有效方案"></a>我的踩坑与最终有效方案</h3><p>一开始我尝试设置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">os.environ[&#x27;HF_HUB_OFFLINE&#x27;] = &#x27;1&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><strong>结果：完全没用，问题依旧存在。</strong></p>
+<p>真正<strong>唯一有效、一劳永逸</strong>的解决方案：</p>
+<p><strong>在 FastAPI 生命周期 <code>lifespan</code> 里做一次同步预热调用</strong>，强制模型在主线程、事件循环启动前完成初始化。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@asynccontextmanager</span><br><span class="line">async def lifespan(app: FastAPI):</span><br><span class="line">    # 同步预热：最有效，直接解决异步加载崩溃</span><br><span class="line">    search(&quot;warmup&quot;, top_k=1)</span><br><span class="line">    yield</span><br></pre></td></tr></table></figure>
+
+<h3 id="最终结论"><a href="#最终结论" class="headerlink" title="最终结论"></a>最终结论</h3><ul>
+<li>环境变量 <code>HF_HUB_OFFLINE</code> 对这个报错<strong>无效</strong></li>
+<li><strong>主线程同步预热</strong>才是根治方案</li>
+</ul>
+<hr>
+<h3 id="教训"><a href="#教训" class="headerlink" title="教训"></a>教训</h3><p>异步服务里加载 embedding 模型，<strong>不要依赖环境变量屏蔽网络请求</strong>，最稳的做法永远是：<strong>服务启动时，在主线程做一次同步预热，把模型完全加载好，再接收流量。</strong></p>
+<h2 id="十、关于提示词与前端交互的额外觉悟"><a href="#十、关于提示词与前端交互的额外觉悟" class="headerlink" title="十、关于提示词与前端交互的额外觉悟"></a>十、关于提示词与前端交互的额外觉悟</h2><h3 id="提示词模式：严格-vs-自由"><a href="#提示词模式：严格-vs-自由" class="headerlink" title="提示词模式：严格 vs 自由"></a>提示词模式：严格 vs 自由</h3><p>在测试智能问答时，我发现同样的问题，用“语义搜索”找不到答案，但用大模型“自由生成”却能答出来。<br>这说明大模型有很强的“创造发挥”能力——如果不加约束，它会在没有检索信息的情况下自己编造答案。<br>于是我把问答模式拆成两种：</p>
+<ul>
+<li><strong>严格模式</strong>：只基于下方检索到的上下文回答，信息不足时直接说“无法回答”。</li>
+<li><strong>自由模式</strong>：可以结合自己的知识发挥，适合开放性问题。</li>
+</ul>
+<p>并且在前端侧边栏提供开关，让用户自己选择。<br><strong>教训</strong>：提示词不是写一次就完事，要根据实际效果反复打磨，主动预设模式并让用户可见。</p>
+<h3 id="前端展示逻辑：不要让用户猜"><a href="#前端展示逻辑：不要让用户猜" class="headerlink" title="前端展示逻辑：不要让用户猜"></a>前端展示逻辑：不要让用户猜</h3><p>在语义搜索结果列表中，每部电影会显示一个“相似度”分数。但用户可能会困惑：为什么有的相似度是 0.00？为什么官方标签和剧情对不上？<br>针对这些问题，我在<strong>侧边栏增加了固定备注</strong>：</p>
+<ul>
+<li>相似度分数仅表示剧情匹配程度，0.00 表示仅标题语义匹配、剧情不相关。</li>
+<li>官方标签（Primary_Genre）可能与实际剧情不符，仅供参考。</li>
+<li>智能问答分为“严格模式”和“自由模式”，解释各自行为。</li>
+</ul>
+<p>这些微小的说明，大大降低了用户的学习成本，也避免了对系统能力的误解。<br><strong>教训</strong>：任何可能让用户疑惑的数据或逻辑，都要在前端加注说明，这是产品思维的体现。</p>
+<hr>
+<h2 id="十一、最后的血泪总结"><a href="#十一、最后的血泪总结" class="headerlink" title="十一、最后的血泪总结"></a>十一、最后的血泪总结</h2><ol>
+<li><strong>数据清洗后必须输出质量报告</strong>：足够了解自己的数据是一切工程的基础。</li>
+<li><strong>双表对齐（索引与元数据分离）</strong>：工业界通用实践，能极大降低迭代成本。</li>
+<li><strong>多语言检索</strong>：嵌入模型的跨语言能力比任何调参都重要。</li>
+<li><strong>翻译批量任务</strong>：原子保存 + 断点续传是底线，否则钱和时间都白费。</li>
+<li><strong>评估体系必须前置</strong>：先裸跑基线，每步优化都测量，避免“最后发现自己白做”。</li>
+<li><strong>异步部署</strong>：模型加载必须在主线程，且强制离线。</li>
+<li><strong>提示词要主动预设模式</strong>（严格&#x2F;自由），并在前端给用户清晰说明。</li>
+<li><strong>前端备注是产品思维</strong>：不要让用户猜，不要让用户困惑。</li>
+</ol>
+<h2 id="十二、写在最后"><a href="#十二、写在最后" class="headerlink" title="十二、写在最后"></a>十二、写在最后</h2><p>回头看这一个月的开发周期，我并没有一开始就走最优路线，而是在完美主义、盲目堆架构、无效调参里绕了很远的路。</p>
+<p>RAG 系统从来不是单一算法的比拼，而是<strong>数据质量、嵌入选型、文本分块、检索融合、工程容错、量化评估、产品交互</strong>的全链路工程综合体。</p>
+<p>对个人开发者而言，最小可行的 MVP 永远优先于理想化的完美架构。</p>
+<p>先跑通、再优化、后量化，才是低成本试错、持续迭代的正确节奏。</p>
+<p>这个三万五千条电影剧情 RAG 项目，没有精致的包装，没有亮眼的 star，却是我从零到一完整走完 RAG 工业落地流程的真实沉淀。</p>
+<p>所有踩过的坑、记下的教训、落地的方案，都会变成后续复杂 AI 应用开发的底层经验库。</p>
+<p>技术学习从来不是一蹴而就，那些混乱、卡顿、反复重构、花钱踩雷的时刻，最终都会变成扎实的工程能力。</p>
+<p>项目暂时告一段落，但迭代不会停止，后续会基于本次评估短板，持续优化检索召回、补充高质量标注数据集，慢慢打磨成更稳定、更完善的个人实践作品。</p>
+<blockquote>
+<p><strong>附项目源码仓库：</strong>&gt;<br><a target="_blank" rel="noopener" href="https://github.com/Ashley-Linn/movie-mind-rag.git">https://github.com/Ashley-Linn/movie-mind-rag.git</a></p>
+</blockquote>
+</article>
+<div class="article-footer">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    
+
+
+    <section id="share">
+      <div class="header"><span>分享文章</span></div>
+      <div class="body">
+        <div class="link"><input class="copy-area" readonly="true" id="copy-link" value="https://ashley-linn.github.io/2026/04/28/movie-mind-rag/" /></div>
+        <div class="social-wrap dis-select"><a class="social share-item wechat" onclick="util.toggle(&quot;qrcode-wechat&quot;)"><img  src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/b32ef3da1162a.svg" /></a><a class="social share-item link" onclick="util.copy(&quot;copy-link&quot;, &quot;复制成功&quot;)"><img  src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/8411ed322ced6.svg" /></a></div>
+        
+        <div class="qrcode" id="qrcode-wechat" style="opacity:0;height:0">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=https://ashley-linn.github.io/2026/04/28/movie-mind-rag/"/>
+        </div>
+        
+      </div>
+    </section>
+    </div>
+
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2026/04/13/rss-summary/">从零搭建个人AI信息简报系统：RSSHub + OpenClaw + DeepSeek 实战</a></div></section></div>
+
+
+
+
+
+
+<footer class="page-footer footnote"><hr><div class="sitemap" style="column-count:4;"><div class="sitemap-group"><span class="fs15">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs15">内容板块</span><a href="/tech/">技术实践</a><a href="/growth/">成长印记</a><a href="/life/">生活札记</a><a href="/manage/">状态管理</a></div><div class="sitemap-group"><span class="fs15">社交</span><a target="_blank" rel="noopener" href="https://github.com/Ashley-Linn">Github</a><a target="_blank" rel="noopener" href="https://www.zhihu.com/people/ha-a-ha-38-49">知乎</a><a target="_blank" rel="noopener" href="https://www.xiaohongshu.com/user/profile/65f56b57000000000600fe05)">小红书</a><a href="/images/wechat-qrcode.jpg">公众号</a></div><div class="sitemap-group"><span class="fs15">关于</span><a href="/about/">本站简介</a><a href="/about/privacy/">隐私政策</a><a target="_blank" rel="noopener" href="https://github.com/Ashley-Linn">Github</a><a href="mailto:lyj7324@163.com">邮箱</a></div></div><div class="text"><p>本站由 <a href="/">木予</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.33.1">Stellar 1.33.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%81%9A%E8%BF%99%E4%B8%AA%E9%A1%B9%E7%9B%AE%EF%BC%9F"><span class="toc-text">一、为什么要做这个项目？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%AE%8C%E7%BE%8E%E4%B8%BB%E4%B9%89%E5%9E%8B%E8%A7%84%E5%88%92%EF%BC%8C%E7%BB%93%E6%9E%9C%E5%AE%8C%E5%85%A8%E7%9C%8B%E4%B8%8D%E6%87%82%E4%BB%A3%E7%A0%81"><span class="toc-text">二、第一阶段：完美主义型规划，结果完全看不懂代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%8D%A2%E5%AF%B9%E6%A8%A1%E5%9E%8B%EF%BC%8C%E4%BF%A1%E5%BF%83%E7%AC%AC%E4%B8%80%E6%AC%A1%E8%B5%B7%E6%9D%A5"><span class="toc-text">三、第二阶段：换对模型，信心第一次起来</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%88%86%E5%9D%97%E9%80%BB%E8%BE%91%EF%BC%8C%E4%BB%8E%E6%9A%B4%E5%8A%9B%E5%88%B0%E8%AF%AD%E4%B9%89%E8%BE%B9%E7%95%8C"><span class="toc-text">四、第三阶段：分块逻辑，从暴力到语义边界</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%8E%B0%E8%B1%A1"><span class="toc-text">问题现象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9A%E8%AF%AD%E4%B9%89%E8%BE%B9%E7%95%8C%E8%87%AA%E9%80%82%E5%BA%94%E5%88%86%E5%9D%97"><span class="toc-text">解决方案：语义边界自适应分块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%84%E4%BC%B0%E5%88%86%E5%9D%97%E8%B4%A8%E9%87%8F%EF%BC%88%E4%BA%8B%E5%90%8E%E6%89%8D%E5%81%9A%EF%BC%89"><span class="toc-text">评估分块质量（事后才做）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A2%AB%E5%BF%BD%E7%95%A5%E7%9A%84%E5%9F%BA%E5%BB%BA%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%B8%85%E6%B4%97%E5%90%8E%E5%BF%85%E9%A1%BB%E8%BE%93%E5%87%BA%E6%8A%A5%E5%91%8A"><span class="toc-text">被忽略的基建：数据清洗后必须输出报告</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E7%AC%AC%E5%9B%9B%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%91%98%E8%A6%81%E7%94%9F%E6%88%90%EF%BC%8C%E4%BB%8E-LSA-%E5%88%B0%E4%BD%8D%E7%BD%AE%E5%8A%A0%E6%9D%83-TextRank"><span class="toc-text">五、第四阶段：摘要生成，从 LSA 到位置加权 TextRank</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E5%88%9D%E6%96%B9%E6%A1%88%EF%BC%9ALSA%EF%BC%88%E6%BD%9C%E5%9C%A8%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90%EF%BC%89"><span class="toc-text">最初方案：LSA（潜在语义分析）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E6%96%B9%E6%A1%88%EF%BC%9A%E4%BD%8D%E7%BD%AE%E5%8A%A0%E6%9D%83-TextRank-%E5%BC%BA%E5%88%B6%E4%BF%9D%E7%95%99%E7%AC%AC%E4%B8%80%E5%8F%A5"><span class="toc-text">最终方案：位置加权 TextRank + 强制保留第一句</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%97%E6%B3%95%E5%AF%B9%E6%AF%94%EF%BC%88%E7%B2%BE%E7%AE%80%E7%89%88%EF%BC%89"><span class="toc-text">算法对比（精简版）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E7%AC%AC%E4%BA%94%E9%98%B6%E6%AE%B5%EF%BC%9A%E7%BF%BB%E8%AF%91%EF%BC%8C%E6%8A%98%E8%85%BE%E5%8F%88%E8%8A%B1%E9%92%B1"><span class="toc-text">六、第五阶段：翻译，折腾又花钱</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%80%E6%B3%AA%E6%8A%98%E8%85%BE%E5%8F%B2"><span class="toc-text">血泪折腾史</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-text">解决方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BF%BB%E8%AF%91%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0"><span class="toc-text">翻译质量评估</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E7%AC%AC%E5%85%AD%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%A3%80%E7%B4%A2%E4%BC%98%E5%8C%96%E4%BB%8E%E7%B1%BB%E5%9E%8B%E5%BE%AE%E5%BC%B1%E5%8A%A0%E6%9D%83%E5%88%B0%E5%8F%8C%E8%A1%A8%E5%AF%B9%E9%BD%90%E4%B8%8E%E6%B7%B7%E5%90%88%E6%8E%92%E5%BA%8F"><span class="toc-text">七、第六阶段：检索优化从类型微弱加权到双表对齐与混合排序</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A9%E6%9C%9F%E5%BC%AF%E8%B7%AF%EF%BC%9A%E7%B1%BB%E5%9E%8B%E5%BE%AE%E5%BC%B1%E5%8A%A0%E6%9D%83%E4%B8%8E%E6%94%BE%E5%BC%83"><span class="toc-text">早期弯路：类型微弱加权与放弃</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A%E6%A0%87%E9%A2%98%E7%A1%AC%E7%BD%AE%E9%A1%B6"><span class="toc-text">第一步：标题硬置顶</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E6%A0%87%E9%A2%98%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2-RRF-%E8%9E%8D%E5%90%88"><span class="toc-text">第二步：标题向量检索 + RRF 融合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E6%9E%B6%E6%9E%84%EF%BC%9A%E5%8F%8C%E8%A1%A8%E5%AF%B9%E9%BD%90%EF%BC%88%E7%B4%A2%E5%BC%95-%E5%85%83%E6%95%B0%E6%8D%AE%E5%88%86%E7%A6%BB%EF%BC%89"><span class="toc-text">最终架构：双表对齐（索引-元数据分离）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E7%AC%AC%E4%B8%83%E9%98%B6%E6%AE%B5%EF%BC%9A%E8%AF%84%E4%BC%B0%E4%BD%93%E7%B3%BB%EF%BC%8CRAGAS-%E7%9A%84%E5%9D%91%E4%B8%8E%E9%A1%BF%E6%82%9F"><span class="toc-text">八、第七阶段：评估体系，RAGAS 的坑与顿悟</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B8%A9%E5%9D%91-1%EF%BC%9A%E6%B5%8B%E8%AF%95%E9%9B%86%E6%9E%84%E5%BB%BA%E2%80%94%E2%80%94LLM-%E7%94%9F%E6%88%90%E5%AE%8C%E5%85%A8%E4%B8%8D%E8%A1%8C"><span class="toc-text">踩坑 1：测试集构建——LLM 生成完全不行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%9B%86%E6%9E%84%E5%BB%BA%E5%8E%9F%E5%88%99%EF%BC%88%E9%87%8D%E8%A6%81%EF%BC%89"><span class="toc-text">数据集构建原则（重要）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B8%A9%E5%9D%91-2%EF%BC%9A%E6%A3%80%E7%B4%A2%E5%99%A8%E8%BF%94%E5%9B%9E%E7%9A%84%E5%86%85%E5%AE%B9%E4%B8%8E%E7%B4%A2%E5%BC%95%E4%B8%8D%E4%B8%80%E8%87%B4"><span class="toc-text">踩坑 2：检索器返回的内容与索引不一致</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8B%E5%87%BA%E7%9A%84%E7%9C%9F%E5%AE%9E%E6%95%B0%E6%8D%AE%EF%BC%88%E7%AB%AF%E5%88%B0%E7%AB%AF%EF%BC%89"><span class="toc-text">测出的真实数据（端到端）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RAGAS-%E4%BD%BF%E7%94%A8%E6%95%99%E8%AE%AD"><span class="toc-text">RAGAS 使用教训</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E7%AC%AC%E5%85%AB%E9%98%B6%E6%AE%B5%EF%BC%9A%E9%83%A8%E7%BD%B2%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%8C%96%EF%BC%8C%E5%BC%82%E6%AD%A5%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9E%8B%E7%9A%84%E8%87%B4%E5%91%BD%E5%9D%91"><span class="toc-text">九、第八阶段：部署与工程化，异步加载模型的致命坑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%8E%B0%E8%B1%A1-1"><span class="toc-text">问题现象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B9%E6%BA%90"><span class="toc-text">根源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%88%91%E7%9A%84%E8%B8%A9%E5%9D%91%E4%B8%8E%E6%9C%80%E7%BB%88%E6%9C%89%E6%95%88%E6%96%B9%E6%A1%88"><span class="toc-text">我的踩坑与最终有效方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E7%BB%93%E8%AE%BA"><span class="toc-text">最终结论</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%99%E8%AE%AD"><span class="toc-text">教训</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E5%85%B3%E4%BA%8E%E6%8F%90%E7%A4%BA%E8%AF%8D%E4%B8%8E%E5%89%8D%E7%AB%AF%E4%BA%A4%E4%BA%92%E7%9A%84%E9%A2%9D%E5%A4%96%E8%A7%89%E6%82%9F"><span class="toc-text">十、关于提示词与前端交互的额外觉悟</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%A8%A1%E5%BC%8F%EF%BC%9A%E4%B8%A5%E6%A0%BC-vs-%E8%87%AA%E7%94%B1"><span class="toc-text">提示词模式：严格 vs 自由</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%AB%AF%E5%B1%95%E7%A4%BA%E9%80%BB%E8%BE%91%EF%BC%9A%E4%B8%8D%E8%A6%81%E8%AE%A9%E7%94%A8%E6%88%B7%E7%8C%9C"><span class="toc-text">前端展示逻辑：不要让用户猜</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E6%9C%80%E5%90%8E%E7%9A%84%E8%A1%80%E6%B3%AA%E6%80%BB%E7%BB%93"><span class="toc-text">十一、最后的血泪总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81%E5%86%99%E5%9C%A8%E6%9C%80%E5%90%8E"><span class="toc-text">十二、写在最后</span></a></li></ol></div><div class="widget-footer"><a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ --><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/><path d="M7 3.338A9.95 9.95 0 0 1 12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12c0-1.821.487-3.53 1.338-5"/></g></svg><span>回到顶部</span></a></div></widget>
+</div></aside><div class='float-panel'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+
+
+<script type="text/javascript">
+  window.canonical = {"closeEnable":true,"closeText":"关闭提示","originalHost":null,"officialHosts":["localhost"],"encoded":""};
+  window.canonical["param"] = {"permalink":"https://ashley-linn.github.io/2026/04/28/movie-mind-rag/","checklink":"/js/plugins/video.js"};
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+    tag_plugins: {
+      chat: Object.assign({"api":"https://siteinfo.listentothewind.cn/api/v1"}),
+    }
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"skip_search":null,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+    loading: `https://api.iconify.design/eos-icons:three-dots-loading.svg?color=%231cd0fd`,
+  };
+  const deps = {
+    jquery: `https://gcore.jsdelivr.net/npm/jquery@3.7/dist/jquery.min.js`,
+    marked: `https://gcore.jsdelivr.net/npm/marked@13.0/lib/marked.umd.min.js`,
+    lazyload: `/%5Bobject%20Object%5D`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  
+  function RunItem() {
+    this.list = []; // 存放回调函数
+    this.start = () => {
+      for (var i = 0; i < this.list.length; i++) {
+        this.list[i].run();
+      }
+    };
+    this.push = (fn, name, setRequestAnimationFrame = true) => {
+      let myfn = fn
+      if (setRequestAnimationFrame) {
+        myfn = () => {
+          utils.requestAnimationFrame(fn)
+        }
+      }
+      var f = new Item(myfn, name);
+      this.list.push(f);
+    };
+    this.remove = (name) => {
+      for (let index = 0; index < this.list.length; index++) {
+        const e = this.list[index];
+        if (e.name == name) {
+          this.list.splice(index, 1);
+        }
+      }
+    }
+    // 构造一个可以run的对象
+    function Item(fn, name) {
+      // 函数名称
+      this.name = name || fn.name;
+      // run方法
+      this.run = () => {
+        try {
+          fn()
+        } catch (error) {
+          console.log(error);
+        }
+      };
+    }
+  }
+
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')) {
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function () {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+
+    onLoading: (el) => {
+      if (el) {
+        if ($(el).find('.loading-wrap').length == 0){
+          $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+        }
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      const maxRetry = 3;
+      let retryCount = 0;
+
+      return new Promise((resolve, reject) => {
+        const load = () => {
+          utils.onLoading?.(el);
+
+          let timedOut = false;
+          const timeout = setTimeout(() => {
+            timedOut = true;
+            console.warn('[request] 超时:', url);
+
+            if (++retryCount >= maxRetry) {
+              utils.onLoadFailure?.(el);
+              onFailure?.();
+              reject('请求超时');
+            } else {
+              setTimeout(load, 1000);
+            }
+          }, 5000);
+
+          fetch(url).then(resp => {
+            if (timedOut) return;
+            clearTimeout(timeout);
+
+            if (!resp.ok) throw new Error('响应失败');
+            return resp;
+          }).then(data => {
+            if (timedOut) return;
+            utils.onLoadSuccess?.(el);
+            callback(data);
+            resolve(data);
+          }).catch(err => {
+            clearTimeout(timeout);
+            console.warn('[request] 错误:', err);
+
+            if (++retryCount >= maxRetry) {
+              utils.onLoadFailure?.(el);
+              onFailure?.();
+              reject(err);
+            } else {
+              setTimeout(load, 1000);
+            }
+          });
+        };
+
+        load();
+      });
+    },
+    requestWithoutLoading: (url, options = {}, maxRetry = 2, timeout = 5000) => {
+      return new Promise((resolve, reject) => {
+        let retryCount = 0;
+
+        const tryRequest = () => {
+          let timedOut = false;
+          const timer = setTimeout(() => {
+            timedOut = true;
+            if (++retryCount > maxRetry) reject('timeout');
+            else tryRequest();
+          }, timeout);
+
+          fetch(url, options)
+            .then(resp => {
+              clearTimeout(timer);
+              if (!resp.ok) throw new Error('bad response');
+              resolve(resp);
+            })
+            .catch(err => {
+              clearTimeout(timer);
+              if (++retryCount > maxRetry) reject(err);
+              else setTimeout(tryRequest, 500);
+            });
+        };
+
+        tryRequest();
+      });
+    },
+    /********************** requestAnimationFrame ********************************/
+    // 1、requestAnimationFrame 会把每一帧中的所有 DOM 操作集中起来，在一次重绘或回流中就完成，并且重绘或回流的时间间隔紧紧跟随浏览器的刷新频率，一般来说，这个频率为每秒60帧。
+    // 2、在隐藏或不可见的元素中，requestAnimationFrame 将不会进行重绘或回流，这当然就意味着更少的的 cpu，gpu 和内存使用量。
+    requestAnimationFrame: (fn) => {
+      if (!window.requestAnimationFrame) {
+        window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
+      }
+      window.requestAnimationFrame(fn)
+    },
+    dark: {},
+  };
+
+  // utils.dark.mode 当前模式 dark or light
+  // utils.dark.toggle() 暗黑模式触发器
+  // utils.dark.push(callBack[,"callBackName"]) 传入触发器回调函数
+  utils.dark.method = {
+    toggle: new RunItem(),
+  };
+  utils.dark = Object.assign(utils.dark, {
+    push: utils.dark.method.toggle.push,
+  });
+</script>
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+<script type="text/javascript">
+  (() => {
+    const tagSwitchers = document.querySelectorAll('.tag-subtree.parent-tag > a > .tag-switcher-wrapper')
+    for (const tagSwitcher of tagSwitchers) {
+      tagSwitcher.addEventListener('click', (e) => {
+        const parent = e.target.closest('.tag-subtree.parent-tag')
+        parent.classList.toggle('expanded')
+        e.preventDefault()
+      })
+    }
+
+    // Get active tag from query string, then activate it.
+    const urlParams = new URLSearchParams(window.location.search)
+    const activeTag = urlParams.get('tag')
+    if (activeTag) {
+      let tag = document.querySelector(`.tag-subtree[data-tag="${activeTag}"]`)
+      if (tag) {
+        tag.querySelector('a').classList.add('active')
+        
+        while (tag) {
+          tag.classList.add('expanded')
+          tag = tag.parentElement.closest('.tag-subtree.parent-tag')
+        }
+      }
+    }
+  })()
+</script>
+
+<script async src="https://gcore.jsdelivr.net/npm/vanilla-lazyload@19.1/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+    callback_loaded: (el) => {
+      el.classList.add('loaded');
+      const wrapper = el.closest('.lazy-box');
+      const icon = wrapper?.querySelector('.lazy-icon');
+      if (icon) icon.remove();
+    }
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+
+  window.wrapLazyloadImages = (container) => {
+    if (typeof container === 'string') {
+      container = document.querySelector(container);
+    }
+    if (!container) return;
+    
+    const images = container.querySelectorAll('img');
+    images.forEach((img) => {
+      if (img.classList.contains('lazy')) return;
+
+      const src = img.getAttribute('src');
+      if (!src) return;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'lazy-box';
+
+      const newImg = img.cloneNode();
+      newImg.removeAttribute('src');
+      newImg.setAttribute('data-src', src);
+      newImg.classList.add('lazy');
+
+      const icon = document.createElement('div');
+      icon.className = 'lazy-icon';
+      if (def.loading) {
+        icon.style.backgroundImage = `url("${def.loading}")`;
+      }
+
+      wrapper.appendChild(newImg);
+      wrapper.appendChild(icon);
+
+      img.replaceWith(wrapper);
+    });
+
+    // 通知 LazyLoad 更新
+    if (window.lazyLoadInstance?.update) {
+      window.lazyLoadInstance.update();
+    }
+  }
+  
+</script>
+
+<!-- required -->
+<script src="/js/main.js?v=1.33.1" defer></script>
+
+<script type="text/javascript">
+  const applyTheme = (theme) => {
+    if (theme === 'auto') {
+      document.documentElement.removeAttribute('data-theme')
+    } else {
+      document.documentElement.setAttribute('data-theme', theme)
+    }
+
+    // applyThemeToGiscus(theme)
+  }
+
+  // FIXME: 这会导致无法使用 preferred_color_scheme 以外的主题
+  const applyThemeToGiscus = (theme) => {
+    // theme = theme === 'auto' ? 'preferred_color_scheme' : theme
+    const cmt = document.getElementById('giscus')
+    if (cmt) {
+      // This works before giscus load.
+      cmt.setAttribute('data-theme', theme)
+    }
+
+    const iframe = document.querySelector('#comments > section.giscus > iframe')
+    if (iframe) {
+      // This works after giscus loaded.
+      const src = iframe.src
+      const newSrc = src.replace(/theme=[\w]+/, `theme=${theme}`)
+      iframe.src = newSrc
+    }
+  }
+
+  const switchTheme = () => {
+    // light -> dark -> auto -> light -> ...
+    const currentTheme = document.documentElement.getAttribute('data-theme')
+    let newTheme;
+    switch (currentTheme) {
+      case 'light':
+        newTheme = 'dark'
+        break
+      case 'dark':
+        newTheme = 'auto'
+        break
+      default:
+        newTheme = 'light'
+    }
+    applyTheme(newTheme)
+    window.localStorage.setItem('Stellar.theme', newTheme)
+    utils.dark.mode = newTheme === 'auto' ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : newTheme;
+    utils.dark.method.toggle.start();
+
+    const messages = {
+      light: `切换到浅色模式`,
+      dark: `切换到深色模式`,
+      auto: `切换到跟随系统配色`,
+    }
+    hud?.toast?.(messages[newTheme])
+  }
+
+  (() => {
+    // Apply user's preferred theme, if any.
+    const theme = window.localStorage.getItem('Stellar.theme')
+    if (theme !== null) {
+      applyTheme(theme)
+    } else {
+      utils.dark.mode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    utils.dark.method.toggle.start();
+  })()
+</script>
+
+
+<!-- optional -->
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"rating":{"js":"/js/services/rating.js","api":"https://star-vote.xaox.cc/api/rating"},"vote":{"js":"/js/services/vote.js","api":"https://star-vote.xaox.cc/api/vote"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"friends_and_posts":{"js":"/js/services/friends_and_posts.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"},"voice":{"js":"/js/plugins/voice.js"},"video":{"js":"/js/plugins/video.js"},"download-file":{"js":"/js/plugins/download-file.js"},"twikoo":{"js":"/js/services/twikoo_latest_comment.js"},"waline":{"js":"/js/services/waline_latest_comment.js"},"artalk":{"js":"/js/services/artalk_latest_comment.js"},"giscus":{"js":"/js/services/giscus_latest_comment.js"},"contributors":{"edit_this_page":{"_posts/":null,"wiki/stellar/":"https://github.com/xaoxuu/hexo-theme-stellar-docs/blob/main/"},"js":"/js/services/contributors.js"},"rss":{"js":"/js/services/rss.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else if (id == 'voice') {
+        ctx.voiceAudios = document.querySelectorAll('.voice>audio');
+        if (ctx.voiceAudios?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            createVoiceDom(ctx.voiceAudios);
+          });
+        }
+      } else if (id == 'video') {
+        ctx.videos = document.querySelectorAll('.video>video');
+        if (ctx.videos?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            videoEvents(ctx.videos);
+          });
+        }
+      } else if (id == 'download-file') {
+        ctx.files = document.querySelectorAll('.chat-file');
+        if (ctx.files?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            downloadFileEvent(ctx.files);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+
+    // chat iphone time
+    let phoneTimes = document.querySelectorAll('.chat .status-bar .time');
+
+    if (phoneTimes.length > 0) {
+      NowTime();
+      var date = new Date();
+      var sec = date.getSeconds();
+      var firstAdjustInterval = setInterval(firstAdjustTime, 1000 * (60 - sec));
+    }
+
+    function firstAdjustTime() {
+      NowTime();
+      clearInterval(firstAdjustInterval);
+      setInterval(NowTime, 1000 * 60);
+    }
+
+    function NowTime() {
+      for (let i = 0; i < phoneTimes.length; ++i) {
+        var timeSpan = phoneTimes[i];
+        var date = new Date();
+        var hour = date.getHours();
+        var min = date.getMinutes();
+        timeSpan.innerHTML = check(hour) + ":" + check(min);
+      }
+    };
+
+    function check(val) {
+      if (val < 10) {
+        return ("0" + val);
+      }
+      return (val);
+    }
+
+    // chat quote
+    const chat_quote_obverser = new IntersectionObserver((entries, observer) => {
+      entries.filter((entry) => { return entry.isIntersecting }).sort((a, b) => a.intersectionRect.y !== b.intersectionRect.y ? a.intersectionRect.y - b.intersectionRect.y : a.intersectionRect.x - b.intersectionRect.x).forEach((entry, index) => {
+          observer.unobserve(entry.target);
+          setTimeout(() => {
+            entry.target.classList.add('quote-blink');
+            setTimeout(() => {
+              entry.target.classList.remove('quote-blink');
+            }, 1000);
+          }, Math.max(100, 16) * (index + 1));
+        });
+    });
+
+    var chatQuotes = document.querySelectorAll(".chat .talk .quote");
+    chatQuotes.forEach((quote) => {
+      quote.addEventListener('click', function () {
+        var chatCellDom = document.getElementById("quote-" + quote.getAttribute("quotedCellTag"));
+        if (chatCellDom) {
+          var chatDiv = chatCellDom.parentElement;
+          var mid = chatDiv.clientHeight / 2;
+          var offsetTop = chatCellDom.offsetTop;
+          if (offsetTop > mid - chatCellDom.clientHeight / 2) {
+            chatDiv.scrollTo({
+              top: chatCellDom.offsetTop - mid + chatCellDom.clientHeight / 2,
+              behavior: "smooth"
+            });
+          } else {
+            chatDiv.scrollTo({
+              top: 0,
+              behavior: "smooth"
+            });
+          }
+          chat_quote_obverser.observe(chatCellDom);
+        }
+      });
+    });
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://gcore.jsdelivr.net/npm/flying-pages@2/flying-pages.min.js"></script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://gcore.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css`,
+    js: `https://gcore.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js`
+  };
+  var selector = '[data-fancybox]:not(.error), .with-fancybox .atk-content img:not([atk-emoticon])';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const memos = document.getElementsByClassName('ds-memos');
+    if (memos != undefined && memos.length > 0) {
+      needFancybox = true;
+    }
+    const fancybox = document.getElementsByClassName('with-fancybox');
+    if (fancybox != undefined && fancybox.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+</div></body></html>
