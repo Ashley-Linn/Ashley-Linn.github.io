@@ -18,6 +18,7 @@ permalink: /tech/
 
 
 ## 📌 最新实践
+- [从零到一搭建电影 RAG 系统：我的工程血泪史与工业实践复盘](/2026/04/28/movie-mind-rag/)
 - [从零搭建个人AI信息简报系统：RSSHub + OpenClaw + DeepSeek 实战](/2026/04/13/rss-summary/)
 - [如何将国产模型接入Claude Code](/2026/02/04/claude-code/)
 - [如何搭建Hexo个人博客（Windows 版）](/2026/01/17/hexo-blog-build/)

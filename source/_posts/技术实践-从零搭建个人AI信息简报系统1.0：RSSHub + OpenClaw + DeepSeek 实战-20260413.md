@@ -439,6 +439,8 @@ openclaw cron add \
 - 掌握了大模型 API 调用、飞书机器人开发、Docker 基本操作、Python 调试技巧。
 - 培养了“问题拆解 → 假设 → 验证 → 迭代”的工程思维。
 
+> 这个项目的代码现在看起来很普通，但当时花了整整三天才跑通。回头看，正是那三天里的每一次报错、每一次重试，让我对 API 调用、环境配置、错误处理有了体感。没有什么知识是一蹴而就的，但每迈过一个坎，下一个坎就会矮一些。
+
 ---
 
 > **附：[GitHub 仓库：Ashley-Linn/rss-summary-openclaw](https://github.com/Ashley-Linn/rss-summary-openclaw)**
