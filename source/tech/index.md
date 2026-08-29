@@ -18,6 +18,7 @@ permalink: /tech/
 
 
 ## 📌 最新实践
+- [大模型训练、微调与推理框架全解析：从底层逻辑到工程落地](/2026/08/29/llm‑train‑finetune‑inference‑overview/)
 - [从零到一搭建电影 RAG 系统：我的工程血泪史与工业实践复盘](/2026/04/28/movie-mind-rag/)
 - [从零搭建个人AI信息简报系统：RSSHub + OpenClaw + DeepSeek 实战](/2026/04/13/rss-summary/)
 - [如何将国产模型接入Claude Code](/2026/02/04/claude-code/)
