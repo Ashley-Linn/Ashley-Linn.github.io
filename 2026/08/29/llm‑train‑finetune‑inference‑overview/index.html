@@ -17,25 +17,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
   <meta name="theme-color" content="#f9fafb">
-  <title>告别信息过载：我的决策型人格自救指南 - 木予</title>
+  <title>大模型训练、微调与推理框架全解析：从底层逻辑到工程落地 - 木予</title>
 
   
-    <meta name="description" content="一直以来，我都以为自己是个 “做事靠谱、考虑周全” 的人。直到最近，我才终于直面那个困扰我许久的真相：我是典型的决策型人格，而这种人格，正在严重拖垮我的工作效率。 什么是决策型人格？简单来说，就是不搜集到足够多的信息，就不敢做任何决定；不把事情想透、想全，就不敢迈出第一步。 我总觉得，只有掌握了所有细节、规避了所有风险，做出的选择才是 “正确” 的。于是，我陷入了一个死循环：想决策 → 疯狂搜集信">
+    <meta name="description" content="前言在学习大模型相关技术的过程中，多数人都是从零散知识点切入：Transformer 原理、模型权重格式、各类训练与推理框架、端侧部署优化等。知识点看似都有所接触，但往往缺少一条完整的工程主线串联，导致概念混淆、边界模糊、无法形成体系认知。 本文基于个人长期碎片化学习积累与工程疑问，系统性梳理大模型训练（training）、微调（fine-tuning）、编译优化、推理（inference）全链路">
 <meta property="og:type" content="article">
-<meta property="og:title" content="告别信息过载：我的决策型人格自救指南">
-<meta property="og:url" content="https://ashley-linn.github.io/2026/03/29/decisive-making-personality/">
+<meta property="og:title" content="大模型训练、微调与推理框架全解析：从底层逻辑到工程落地">
+<meta property="og:url" content="https://ashley-linn.github.io/2026/08/29/llm%E2%80%91train%E2%80%91finetune%E2%80%91inference%E2%80%91overview/">
 <meta property="og:site_name" content="木予">
-<meta property="og:description" content="一直以来，我都以为自己是个 “做事靠谱、考虑周全” 的人。直到最近，我才终于直面那个困扰我许久的真相：我是典型的决策型人格，而这种人格，正在严重拖垮我的工作效率。 什么是决策型人格？简单来说，就是不搜集到足够多的信息，就不敢做任何决定；不把事情想透、想全，就不敢迈出第一步。 我总觉得，只有掌握了所有细节、规避了所有风险，做出的选择才是 “正确” 的。于是，我陷入了一个死循环：想决策 → 疯狂搜集信">
+<meta property="og:description" content="前言在学习大模型相关技术的过程中，多数人都是从零散知识点切入：Transformer 原理、模型权重格式、各类训练与推理框架、端侧部署优化等。知识点看似都有所接触，但往往缺少一条完整的工程主线串联，导致概念混淆、边界模糊、无法形成体系认知。 本文基于个人长期碎片化学习积累与工程疑问，系统性梳理大模型训练（training）、微调（fine-tuning）、编译优化、推理（inference）全链路">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2026-03-29T01:13:22.627Z">
-<meta property="article:modified_time" content="2026-03-29T01:16:58.592Z">
+<meta property="article:published_time" content="2026-08-29T10:55:00.000Z">
+<meta property="article:modified_time" content="2026-08-29T10:55:40.511Z">
 <meta property="article:author" content="木予">
-<meta property="article:tag" content="思考，自我成长，自我觉察">
+<meta property="article:tag" content="大模型工程">
+<meta property="article:tag" content="训练微调">
+<meta property="article:tag" content="模型推理">
+<meta property="article:tag" content="编译优化">
+<meta property="article:tag" content="推理引擎">
 <meta name="twitter:card" content="summary">
   
   
   
-  <meta name="keywords" content="思考，自我成长，自我觉察">
+  <meta name="keywords" content="大模型工程,训练微调,模型推理,编译优化,推理引擎">
 
   <!-- feed -->
   
@@ -47,7 +51,7 @@
 
   
 
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"木予","sameAs":[]},"dateCreated":"2026-03-29T09:13:22+08:00","dateModified":"2026-03-29T09:16:58+08:00","datePublished":"2026-03-29T09:13:22+08:00","description":"","headline":"告别信息过载：我的决策型人格自救指南","mainEntityOfPage":{"@type":"WebPage","@id":"https://ashley-linn.github.io/2026/03/29/decisive-making-personality/"},"publisher":{"@type":"Organization","name":"木予","sameAs":[]},"url":"https://ashley-linn.github.io/2026/03/29/decisive-making-personality/","keywords":"思考，自我成长，自我觉察","image":[]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"木予","sameAs":[]},"dateCreated":"2026-08-29T18:55:00+08:00","dateModified":"2026-08-29T18:55:40+08:00","datePublished":"2026-08-29T18:55:00+08:00","description":"","headline":"大模型训练、微调与推理框架全解析：从底层逻辑到工程落地","mainEntityOfPage":{"@type":"WebPage","@id":"https://ashley-linn.github.io/2026/08/29/llm%E2%80%91train%E2%80%91finetune%E2%80%91inference%E2%80%91overview/"},"publisher":{"@type":"Organization","name":"木予","sameAs":[]},"url":"https://ashley-linn.github.io/2026/08/29/llm%E2%80%91train%E2%80%91finetune%E2%80%91inference%E2%80%91overview/","keywords":"大模型工程, 训练微调, 模型推理, 编译优化, 推理引擎","image":[]}</script>
   <link rel="shortcut icon" href="/favicon.png" type="image/x-icon"><style>
   /* ==================== 正文样式 ==================== */
   /* 核心：正文强制纯黑（保证阅读） */
@@ -189,78 +193,251 @@
 <div class="article banner top">
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
-<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E6%88%90%E9%95%BF%E5%8D%B0%E8%AE%B0/">成长印记</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2026-03-29T01:13:22.627Z">2026-03-29</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2026-03-29T01:16:58.592Z">2026-03-29</time></span></div></div></div>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E6%8A%80%E6%9C%AF%E5%AE%9E%E8%B7%B5/">技术实践</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2026-08-29T10:55:00.000Z">2026-08-29</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2026-08-29T10:55:40.511Z">2026-08-29</time></span></div></div></div>
     
     <div class="bottom only-title">
       
       <div class="text-area">
-        <h1 class="text title"><span>告别信息过载：我的决策型人格自救指南</span></h1>
+        <h1 class="text title"><span>大模型训练、微调与推理框架全解析：从底层逻辑到工程落地</span></h1>
         
       </div>
     </div>
     
   </div>
-  </div><article class="md-text content"><p>一直以来，我都以为自己是个 “做事靠谱、考虑周全” 的人。直到最近，我才终于直面那个困扰我许久的真相：<strong>我是典型的决策型人格，而这种人格，正在严重拖垮我的工作效率。</strong></p>
-<p>什么是决策型人格？简单来说，就是<strong>不搜集到足够多的信息，就不敢做任何决定；不把事情想透、想全，就不敢迈出第一步。</strong></p>
-<p>我总觉得，只有掌握了所有细节、规避了所有风险，做出的选择才是 “正确” 的。于是，我陷入了一个死循环：<strong>想决策 → 疯狂搜集信息 → 信息过载 → 大脑混乱 → 无法决策 → 更加焦虑。</strong></p>
-<p>这种状态不是一天两天了，而是长久以来的思维惯性。每次面对工作任务、学习计划，甚至是生活里的小事，我都会下意识地想要 “面面俱到”。我把所有资料收藏、把笔记做得像抄书，以为这是认真，可到头来，<strong>大量时间耗在梳理信息的内耗里，真正落地执行的时间少得可怜。</strong></p>
-<p>信息越多，我越混乱；越混乱，我越无可奈何。就像手里攥着一把沙子，越想握紧，流失得越快。我明明知道这样不对，却总忍不住陷入 “求全、求完美” 的怪圈，一边疲惫不堪，一边停不下来。</p>
-<p>直到最近，我终于下定决心要改变这种认知风格。不是否定自己的认真，而是要学会<strong>给决策 “减负”，给思维 “松绑”</strong>。</p>
-<h1 id="一、我的决策型人格困境"><a href="#一、我的决策型人格困境" class="headerlink" title="一、我的决策型人格困境"></a>一、我的决策型人格困境</h1><h2 id="1-1-核心特征"><a href="#1-1-核心特征" class="headerlink" title="1.1 核心特征"></a>1.1 核心特征</h2><ul>
-<li><p>必须搜集足够信息才敢行动</p>
-</li>
-<li><p>追求完美、害怕遗漏、害怕出错</p>
-</li>
-<li><p>笔记像抄书，收藏大于消化</p>
-</li>
+  </div><article class="md-text content"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在学习大模型相关技术的过程中，多数人都是从零散知识点切入：Transformer 原理、模型权重格式、各类训练与推理框架、端侧部署优化等。知识点看似都有所接触，但往往缺少一条完整的工程主线串联，导致概念混淆、边界模糊、无法形成体系认知。</p>
+<p>本文基于个人长期碎片化学习积累与工程疑问，<strong>系统性梳理大模型训练（training）、微调（fine-tuning）、编译优化、推理（inference）全链路逻辑</strong>，统一厘清各框架、文件格式、部署场景的定位与差异，区分「训练侧建模逻辑」与「推理侧工程优化手段」。</p>
+<p>旨在把零散的技术点沉淀为结构化知识体系，用于后续查阅、复盘与进阶深挖，为后续算子原理、推理优化、底层部署等细节学习建立顶层认知基础。</p>
+<h2 id="一、训练与推理的底层逻辑"><a href="#一、训练与推理的底层逻辑" class="headerlink" title="一、训练与推理的底层逻辑"></a>一、训练与推理的底层逻辑</h2><p>大模型工程核心准则：<strong>先训练 &#x2F; 微调，后推理；训练只做一次，推理无限复用</strong>。</p>
+<p><strong>训练（training）与微调（fine‑tuning）属于建模阶段：</strong>依靠海量数据集反复迭代更新模型内部权重参数，让模型习得知识、逻辑与业务能力。算力消耗大、耗时久，最终产出模型权重文件，训练完成后无需重复执行。</p>
+<p><strong>推理（inference）属于模型使用阶段：</strong>加载参数已经固定的模型权重到硬件，接收输入完成计算输出。推理过程不会修改模型任何参数，模型不会产生新的学习行为，是线上持续对外提供服务的核心环节。</p>
+<p><strong>完整基础链路：</strong>数据集 → 训练 (training)&#x2F; 微调 (fine‑tuning) 迭代优化权重 → 保存模型文件 → 推理 (inference) 引擎加载模型 → 对外提供 AI 服务。</p>
+<blockquote>
+<p>补充概念说明： 还有一个词 <code>prediction</code>（预测），在传统机器学习经常使用；大模型领域工业实践，统一习惯叫 <strong>inference（推理）</strong>。</p>
+</blockquote>
+<h2 id="二、训练与微调生态"><a href="#二、训练与微调生态" class="headerlink" title="二、训练与微调生态"></a>二、训练与微调生态</h2><p>训练生态分为两层：底层基础计算框架负责张量运算；上层封装微调工具降低开发门槛，不用手写大量训练代码。</p>
+<h3 id="2-1-底层训练框架"><a href="#2-1-底层训练框架" class="headerlink" title="2.1 底层训练框架"></a>2.1 底层训练框架</h3><p>表格</p>
+<table>
+<thead>
+<tr>
+<th>框架名称</th>
+<th>特点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PyTorch</td>
+<td>开源社区主流，生态完善，资料丰富</td>
+<td>互联网项目、绝大多数开源大模型训练 (training)</td>
+</tr>
+<tr>
+<td>MindSpore 昇思</td>
+<td>华为自研，深度适配昇腾 NPU</td>
+<td>国产化项目、政企智算中心、盘古大模型训练 (training)</td>
+</tr>
+</tbody></table>
+<h3 id="2-2-微调核心组件"><a href="#2-2-微调核心组件" class="headerlink" title="2.2 微调核心组件"></a>2.2 微调核心组件</h3><p>表格</p>
+<table>
+<thead>
+<tr>
+<th>组件名称</th>
+<th>定位</th>
+<th>核心作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PEFT</td>
+<td>HuggingFace 底层算法库</td>
+<td>冻结基座模型，仅训练少量适配器参数；降低显存消耗，主流实现 LoRA、QLoRA 微调 (fine‑tuning) 算法</td>
+</tr>
+<tr>
+<td>LLaMA‑Factory</td>
+<td>上层一站式微调工具</td>
+<td>封装 PyTorch+PEFT，提供命令行 &#x2F; WebUI；开箱即用，输出 LoRA 适配器权重文件，需要搭配基座模型使用</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>训练生态层级：底层计算框架 → Transformers 模型基础库 → PEFT 高效微调核心库 → LLaMA‑Factory 上层应用工具</p>
+</blockquote>
+<h2 id="三、模型编译优化：训练-微调完成之后，推理之前发生了什么"><a href="#三、模型编译优化：训练-微调完成之后，推理之前发生了什么" class="headerlink" title="三、模型编译优化：训练 &#x2F; 微调完成之后，推理之前发生了什么"></a>三、模型编译优化：训练 &#x2F; 微调完成之后，推理之前发生了什么</h2><blockquote>
+<p>核心疑问解答：原始训练出来的模型参数量巨大，原始权重体积大，<strong>端侧、边缘设备内存 &#x2F; 显存不够，跑不动原始权重，于是就需要做推理侧编译优化</strong>。</p>
+<p> ✅明确结论：<strong>编译优化属于推理阶段前置的工程处理手段，发生在「微调结束之后，正式对外推理运行之前」。编译优化本身不做训练、不学习新知识，只改造模型的存储格式、计算逻辑，适配硬件、压缩体积、降低显存占用。</strong></p>
+</blockquote>
+<h3 id="两种现实情况"><a href="#两种现实情况" class="headerlink" title="两种现实情况"></a>两种现实情况</h3><ol>
+<li><strong>不做编译优化，直接推理（云端 GPU 常用）</strong> HuggingFace、魔搭 ModelScope 社区原生<code>safetensors</code>权重，就是训练微调完直接导出的原始版本。 vLLM、TGI 可以直接加载原始权重直接跑推理 (inference)，不需要提前编译。 硬件显存足够的云上服务器，优先选择这种方式，部署简单灵活。</li>
+<li><strong>做编译 &#x2F; 量化优化（端侧、边缘、低显存环境刚需）</strong> 原始大模型权重太大，边缘盒子、嵌入式设备、本地小显存显卡内存扛不住。 于是在<strong>正式启动推理服务之前，预先执行一套工程处理：量化、算子融合、计算图编译，输出适配硬件的专用模型文件</strong>。</li>
+</ol>
+<ul>
+<li>云端 GPU：原始 safetensors → TensorRT‑LLM 编译，产出 engine 文件</li>
+<li>国产化 NPU：原始 safetensors → 导出 ONNX → CANN 编译，产出 om 文件</li>
+<li>本地 CPU：原始 safetensors → GGUF 量化压缩</li>
 </ul>
-<h2 id="1-2-造成的问题"><a href="#1-2-造成的问题" class="headerlink" title="1.2 造成的问题"></a>1.2 造成的问题</h2><ul>
-<li><p>信息过载 → 大脑混乱</p>
-</li>
-<li><p>思考过度 → 行动迟缓</p>
-</li>
-<li><p>内耗严重 → 效率低下</p>
-</li>
-<li><p>眼高手低 → 懂但做不出</p>
-</li>
+<blockquote>
+<p>关于硅基流动、魔塔等平台标注的「优化后模型」： 平台上标注 “优化后” 的模型，就是<strong>别人已经提前把这套编译、量化工作做完，打包好上传的成品文件</strong>。 你下载下来可以直接给推理引擎加载，跳过你本地手动编译的步骤。 </p>
+<p>⚠重点：这个 “优化” 没有重新训练 (training)&#x2F; 微调 (fine‑tuning)，模型学到的知识、回答能力和原始模型完全一致；改变的只是：模型体积、显存占用、运行速度，部分量化版本会轻微损失一点点精度。</p>
+</blockquote>
+<p>通俗类比：</p>
+<blockquote>
+<p>训练微调：出厂原版高清电影（原始 safetensors 权重，体积巨大） </p>
+<p>直接推理：高性能服务器直接播放原版高清片源 </p>
+<p>编译优化：把高清电影预先转码压缩成适配手机的版本（不改变电影剧情内容，只是体积变小，适配弱设备） </p>
+<p> “优化后模型”：别人已经帮你转码压缩完毕，你拿到手直接播放，不用自己转码。</p>
+</blockquote>
+<p>⚠关键认知：</p>
+<ol>
+<li>编译、量化、转 ONNX，全部属于<strong>推理侧工程预处理，不属于训练环节</strong>，不会更新模型权重里的知识。</li>
+<li>云端 GPU：编译优化是<strong>可选</strong>；端侧 &#x2F; 边缘设备：编译优化基本是<strong>必选</strong>，硬件内存不足以承载原始权重。</li>
+<li>编译优化后的硬件专属格式（om、engine、gguf），无法再拿回做训练 &#x2F; 微调。</li>
+</ol>
+<h2 id="四、推理引擎生态"><a href="#四、推理引擎生态" class="headerlink" title="四、推理引擎生态"></a>四、推理引擎生态</h2><p>推理引擎：加载模型权重，优化速度、显存、并发，对外提供推理 (inference) 服务。分为<strong>云端服务器推理</strong>、<strong>端侧边缘推理</strong>两大场景。</p>
+<blockquote>
+<p><strong>云端服务器（Server &#x2F; 云侧）</strong>：指机房高性能 GPU 服务器集群，算力、显存、内存充足。主要承载大模型高并发线上服务，追求吞吐、延迟、稳定性。云端场景一般不需要模型编译优化，可直接加载原始 safetensors 权重运行。</p>
+<p><strong>边缘侧（Edge）</strong>：介于云端和终端之间的中间设备，如边缘 NPU 盒子、工控机、本地机房小型算力设备。算力有限、带宽有限，需要对模型做编译、量化优化，降低资源开销，承担本地化推理、离线服务、国产化部署场景。</p>
+<p><strong>端侧（Terminal &#x2F; 终端）</strong>：最终用户设备，手机、电脑、嵌入式板子、终端设备。内存极小、算力最弱、完全无法承载原始大模型，<strong>必须经过量化、编译、硬件适配</strong>才能运行推理。</p>
+<p>总结：<strong>云端重服务、边缘重本地化、端侧重极致轻量化</strong>。</p>
+</blockquote>
+<h3 id="4-1-云端服务器推理"><a href="#4-1-云端服务器推理" class="headerlink" title="4.1 云端服务器推理"></a>4.1 云端服务器推理</h3><blockquote>
+<p>特点：面向线上大模型生产环境，追求高并发、低延迟；直接读取<code>safetensors</code>权重，<strong>编译优化为可选步骤，不是强制要求</strong>，不需要 ONNX 也可运行。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>推理引擎</th>
+<th>硬件依赖</th>
+<th>核心特点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>vLLM</td>
+<td>NVIDIA GPU</td>
+<td>PagedAttention 分页注意力，显存利用率高，并发强，原生 OpenAI 兼容 API</td>
+<td>开源大模型线上部署首选，可以直接加载原生权重，也可加载编译优化后的模型</td>
+</tr>
+<tr>
+<td>TensorRT‑LLM</td>
+<td>NVIDIA GPU</td>
+<td>深度压榨显卡硬件性能，性能上限高，需要做编译优化</td>
+<td>高性能要求生产业务</td>
+</tr>
+<tr>
+<td>TGI</td>
+<td>NVIDIA GPU</td>
+<td>生态适配好，稳定性强，并发能力一般</td>
+<td>HuggingFace 生态项目</td>
+</tr>
+</tbody></table>
+<h3 id="4-2-端侧与边缘推理"><a href="#4-2-端侧与边缘推理" class="headerlink" title="4.2 端侧与边缘推理"></a>4.2 端侧与边缘推理</h3><blockquote>
+<p>特点：硬件种类多、算力偏弱，<strong>编译优化几乎是必做流程</strong>，依赖 ONNX 作为跨平台中间转换文件。 通用流程：训练权重 → 导出 ONNX → 编译为硬件专属模型 → 执行推理 (inference)</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>推理引擎</th>
+<th>适配硬件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ONNX Runtime</td>
+<td>CPU、通用 GPU、轻量 NPU</td>
+<td>微软开源，通用 onnx 推理引擎</td>
+</tr>
+<tr>
+<td>TensorRT</td>
+<td>NVIDIA GPU</td>
+<td>多用于计算机视觉小模型推理，需要编译</td>
+</tr>
+<tr>
+<td>OpenVINO</td>
+<td>英特尔 CPU、英特尔 NPU</td>
+<td>工控、边缘终端设备</td>
+</tr>
+<tr>
+<td>CANN+MindSpore Lite</td>
+<td>华为昇腾 NPU</td>
+<td>国产化服务器、边缘 AI 盒子，输出 om 编译后模型</td>
+</tr>
+<tr>
+<td>手机端推理库</td>
+<td>手机芯片</td>
+<td>高通 SNPE、苹果 CoreML 等，实现设备本地推理，必须编译适配手机硬件</td>
+</tr>
+</tbody></table>
+<h2 id="五、模型文件格式"><a href="#五、模型文件格式" class="headerlink" title="五、模型文件格式"></a>五、模型文件格式</h2><p>按用途分为：可训练格式、通用中转格式、硬件专属编译推理格式。</p>
+<table>
+<thead>
+<tr>
+<th>文件格式</th>
+<th>核心用途</th>
+<th>是否可继续训练 (training)&#x2F; 微调 (fine‑tuning)</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>safetensors</td>
+<td>存储完整模型权重</td>
+<td>✅ 支持训练 &#x2F; 微调</td>
+<td>训练、微调、云端推理，社区原始模型分发格式</td>
+</tr>
+<tr>
+<td>LoRA 适配器 (safetensors)</td>
+<td>存储增量微调权重</td>
+<td>✅ 支持迭代微调</td>
+<td>LoRA 微调产出，依赖基座模型</td>
+</tr>
+<tr>
+<td>onnx</td>
+<td>跨框架模型中转交换</td>
+<td>❌ 仅推理 (inference)，不可训练</td>
+<td>端侧、边缘设备部署，编译的中间产物</td>
+</tr>
+<tr>
+<td>gguf</td>
+<td>轻量化量化推理格式</td>
+<td>❌ 仅推理 (inference)</td>
+<td>个人电脑本地离线推理，属于量化优化产物</td>
+</tr>
+<tr>
+<td>om</td>
+<td>昇腾 NPU 编译后离线模型</td>
+<td>❌ 仅推理 (inference)</td>
+<td>华为昇腾硬件部署，编译优化输出</td>
+</tr>
+<tr>
+<td>engine</td>
+<td>TensorRT 编译模型</td>
+<td>❌ 仅推理 (inference)</td>
+<td>NVIDIA GPU 硬件部署，编译优化输出</td>
+</tr>
+</tbody></table>
+<h2 id="六、工程完整链路"><a href="#六、工程完整链路" class="headerlink" title="六、工程完整链路"></a>六、工程完整链路</h2><ol>
+<li><strong>互联网云端主流链路（两种分支）</strong></li>
+</ol>
+<ul>
+<li>分支 A（快速上线，不做编译） PyTorch + PEFT + LLaMA‑Factory 完成微调 (fine‑tuning) → 产出 safetensors 权重 → vLLM 直接加载模型 → 启动 API 对外推理 (inference) 服务</li>
 </ul>
-<h1 id="二、我正在实践的-“轻决策系统”"><a href="#二、我正在实践的-“轻决策系统”" class="headerlink" title="二、我正在实践的 “轻决策系统”"></a>二、我正在实践的 “轻决策系统”</h1><h2 id="2-1-输入原则：只抓-3-点，其余全部舍弃"><a href="#2-1-输入原则：只抓-3-点，其余全部舍弃" class="headerlink" title="2.1 输入原则：只抓 3 点，其余全部舍弃"></a>2.1 输入原则：只抓 3 点，其余全部舍弃</h2><ul>
-<li><p>1 个核心结论</p>
-</li>
-<li><p>2 个关键方法</p>
-</li>
-<li><p>1 个可立刻执行的动作</p>
-</li>
-<li><p>超过 3 点的内容，不看、不记、不收藏</p>
-</li>
+<blockquote>
+<p>全程不使用 ONNX，适配高并发大模型业务</p>
+</blockquote>
+<ul>
+<li>分支 B（生产高性能，增加编译优化） PyTorch + PEFT + LLaMA‑Factory 完成微调 (fine‑tuning) → 产出 safetensors 权重 → TensorRT‑LLM 编译优化 → 加载编译产物对外推理 (inference) 服务</li>
 </ul>
-<h2 id="2-2-决策原则：只做二选一，不追求最优"><a href="#2-2-决策原则：只做二选一，不追求最优" class="headerlink" title="2.2 决策原则：只做二选一，不追求最优"></a>2.2 决策原则：只做二选一，不追求最优</h2><ul>
-<li><p>只保留两个选项</p>
-</li>
-<li><p>选择 “风险更低、成本更低、更容易开始” 的那一个</p>
-</li>
-<li><p>选完即停止思考，不回头、不纠结</p>
-</li>
-</ul>
-<h2 id="2-3-执行原则：完成-完美"><a href="#2-3-执行原则：完成-完美" class="headerlink" title="2.3 执行原则：完成 &gt; 完美"></a>2.3 执行原则：完成 &gt; 完美</h2><ul>
-<li><p>先做最小可用版本</p>
-</li>
-<li><p>不反复修改</p>
-</li>
-<li><p>行动优先，边做边优化</p>
-</li>
-</ul>
-<h1 id="三、改变后的真实感受"><a href="#三、改变后的真实感受" class="headerlink" title="三、改变后的真实感受"></a>三、改变后的真实感受</h1><ul>
-<li><p>信息变少，决策变快</p>
-</li>
-<li><p>混乱减少，焦虑降低</p>
-</li>
-<li><p>行动变多，效率提升</p>
-</li>
-<li><p>不再被 “求全” 绑架，而是被 “实用” 驱动</p>
-</li>
-</ul>
+<ol start="2">
+<li><strong>国产化端侧部署链路（必须编译优化）</strong> 训练 (training)&#x2F; 微调 (fine‑tuning) 产出权重文件 → 导出 ONNX 通用格式 → 编译生成硬件专属模型文件 → 在边缘设备、NPU 硬件上执行推理 (inference)</li>
+</ol>
+<blockquote>
+<p>补充平台 “优化后模型” 链路： 原始模型经过第三方预先完成编译 &#x2F; 量化优化 → 上传至模型平台（硅基流动、魔塔等） → 用户直接下载优化产物，跳过本地编译，直接交给推理引擎运行。</p>
+</blockquote>
+<h2 id="七、常见认知误区"><a href="#七、常见认知误区" class="headerlink" title="七、常见认知误区"></a>七、常见认知误区</h2><ol>
+<li>ONNX 仅作为推理中转文件，不能够反向做训练 (training)、微调 (fine‑tuning)。</li>
+<li>PEFT 是底层算法库，LLaMA‑Factory 是上层封装工具，二者不属于同一层级。</li>
+<li>推理 (inference) 阶段模型权重全程冻结，不会发生模型学习。</li>
+<li>大模型云端部署优先选用 vLLM，ONNX 生态更多服务于端侧边缘设备。</li>
+<li><strong>编译优化 ≠ 重新训练</strong>：社区、模型平台标注 “优化后” 的模型，只是完成量化、算子编译预处理；模型本身知识能力不变，不会新增训练。编译属于推理侧的工程预处理手段，发生在正式推理运行之前。</li>
+<li>编译优化不是所有场景都要做：显存充足的 GPU 服务器，可以直接跑原始 safetensors；内存紧张的端侧边缘设备，编译优化几乎必不可少。</li>
+</ol>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>大模型工程的核心逻辑就是<strong>训练定型、推理复用</strong>。底层框架完成模型训练 (training)&#x2F; 微调 (fine‑tuning) 建模，vLLM 承担主流云端推理 (inference) 部署；<strong>编译、量化是推理侧前置工程预处理手段，用来适配硬件、降低内存开销，不改变模型本身能力</strong>；很多平台的 “优化后模型” 就是别人提前做完这套预处理的成品。各类端侧引擎适配多样化硬件，不同模型文件格式各司其职。理清整套链路，可规避多数概念混淆，为后续微调、部署落地打下基础。</p>
 </article>
 <div class="article-footer">
     <section id="license">
@@ -274,18 +451,18 @@
     <section id="share">
       <div class="header"><span>分享文章</span></div>
       <div class="body">
-        <div class="link"><input class="copy-area" readonly="true" id="copy-link" value="https://ashley-linn.github.io/2026/03/29/decisive-making-personality/" /></div>
+        <div class="link"><input class="copy-area" readonly="true" id="copy-link" value="https://ashley-linn.github.io/2026/08/29/llm%E2%80%91train%E2%80%91finetune%E2%80%91inference%E2%80%91overview/" /></div>
         <div class="social-wrap dis-select"><a class="social share-item wechat" onclick="util.toggle(&quot;qrcode-wechat&quot;)"><img  src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/b32ef3da1162a.svg" /></a><a class="social share-item link" onclick="util.copy(&quot;copy-link&quot;, &quot;复制成功&quot;)"><img  src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/8411ed322ced6.svg" /></a></div>
         
         <div class="qrcode" id="qrcode-wechat" style="opacity:0;height:0">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=https://ashley-linn.github.io/2026/03/29/decisive-making-personality/"/>
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=https://ashley-linn.github.io/2026/08/29/llm%E2%80%91train%E2%80%91finetune%E2%80%91inference%E2%80%91overview/"/>
         </div>
         
       </div>
     </section>
     </div>
 
-<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2026/04/13/rss-summary/">从零搭建个人AI信息简报系统：RSSHub + OpenClaw + DeepSeek 实战</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2026/03/28/time-planning/">精力管理｜从理想主义到理性成长，我踩过的坑与收获</a></div></section></div>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2026/04/28/movie-mind-rag/">从零到一搭建电影 RAG 系统：我的工程血泪史与工业实践复盘</a></div></section></div>
 
 
 
@@ -299,7 +476,7 @@
 
 
 
-<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%88%91%E7%9A%84%E5%86%B3%E7%AD%96%E5%9E%8B%E4%BA%BA%E6%A0%BC%E5%9B%B0%E5%A2%83"><span class="toc-text">一、我的决策型人格困境</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-%E6%A0%B8%E5%BF%83%E7%89%B9%E5%BE%81"><span class="toc-text">1.1 核心特征</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-%E9%80%A0%E6%88%90%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-text">1.2 造成的问题</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%88%91%E6%AD%A3%E5%9C%A8%E5%AE%9E%E8%B7%B5%E7%9A%84-%E2%80%9C%E8%BD%BB%E5%86%B3%E7%AD%96%E7%B3%BB%E7%BB%9F%E2%80%9D"><span class="toc-text">二、我正在实践的 “轻决策系统”</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E8%BE%93%E5%85%A5%E5%8E%9F%E5%88%99%EF%BC%9A%E5%8F%AA%E6%8A%93-3-%E7%82%B9%EF%BC%8C%E5%85%B6%E4%BD%99%E5%85%A8%E9%83%A8%E8%88%8D%E5%BC%83"><span class="toc-text">2.1 输入原则：只抓 3 点，其余全部舍弃</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E5%86%B3%E7%AD%96%E5%8E%9F%E5%88%99%EF%BC%9A%E5%8F%AA%E5%81%9A%E4%BA%8C%E9%80%89%E4%B8%80%EF%BC%8C%E4%B8%8D%E8%BF%BD%E6%B1%82%E6%9C%80%E4%BC%98"><span class="toc-text">2.2 决策原则：只做二选一，不追求最优</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E6%89%A7%E8%A1%8C%E5%8E%9F%E5%88%99%EF%BC%9A%E5%AE%8C%E6%88%90-%E5%AE%8C%E7%BE%8E"><span class="toc-text">2.3 执行原则：完成 &gt; 完美</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%94%B9%E5%8F%98%E5%90%8E%E7%9A%84%E7%9C%9F%E5%AE%9E%E6%84%9F%E5%8F%97"><span class="toc-text">三、改变后的真实感受</span></a></li></ol></div><div class="widget-footer"><a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ --><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/><path d="M7 3.338A9.95 9.95 0 0 1 12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12c0-1.821.487-3.53 1.338-5"/></g></svg><span>回到顶部</span></a></div></widget>
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E8%AE%AD%E7%BB%83%E4%B8%8E%E6%8E%A8%E7%90%86%E7%9A%84%E5%BA%95%E5%B1%82%E9%80%BB%E8%BE%91"><span class="toc-text">一、训练与推理的底层逻辑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E8%AE%AD%E7%BB%83%E4%B8%8E%E5%BE%AE%E8%B0%83%E7%94%9F%E6%80%81"><span class="toc-text">二、训练与微调生态</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%BA%95%E5%B1%82%E8%AE%AD%E7%BB%83%E6%A1%86%E6%9E%B6"><span class="toc-text">2.1 底层训练框架</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E5%BE%AE%E8%B0%83%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6"><span class="toc-text">2.2 微调核心组件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%A8%A1%E5%9E%8B%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%EF%BC%9A%E8%AE%AD%E7%BB%83-%E5%BE%AE%E8%B0%83%E5%AE%8C%E6%88%90%E4%B9%8B%E5%90%8E%EF%BC%8C%E6%8E%A8%E7%90%86%E4%B9%8B%E5%89%8D%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88"><span class="toc-text">三、模型编译优化：训练 &#x2F; 微调完成之后，推理之前发生了什么</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%A4%E7%A7%8D%E7%8E%B0%E5%AE%9E%E6%83%85%E5%86%B5"><span class="toc-text">两种现实情况</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%8E%A8%E7%90%86%E5%BC%95%E6%93%8E%E7%94%9F%E6%80%81"><span class="toc-text">四、推理引擎生态</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E4%BA%91%E7%AB%AF%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%8E%A8%E7%90%86"><span class="toc-text">4.1 云端服务器推理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E7%AB%AF%E4%BE%A7%E4%B8%8E%E8%BE%B9%E7%BC%98%E6%8E%A8%E7%90%86"><span class="toc-text">4.2 端侧与边缘推理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%A8%A1%E5%9E%8B%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F"><span class="toc-text">五、模型文件格式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%B7%A5%E7%A8%8B%E5%AE%8C%E6%95%B4%E9%93%BE%E8%B7%AF"><span class="toc-text">六、工程完整链路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%B8%B8%E8%A7%81%E8%AE%A4%E7%9F%A5%E8%AF%AF%E5%8C%BA"><span class="toc-text">七、常见认知误区</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-text">结语</span></a></li></ol></div><div class="widget-footer"><a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ --><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/><path d="M7 3.338A9.95 9.95 0 0 1 12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12c0-1.821.487-3.53 1.338-5"/></g></svg><span>回到顶部</span></a></div></widget>
 </div></aside><div class='float-panel'>
   <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
@@ -313,7 +490,7 @@
 
 <script type="text/javascript">
   window.canonical = {"closeEnable":true,"closeText":"关闭提示","originalHost":null,"officialHosts":["localhost"],"encoded":""};
-  window.canonical["param"] = {"permalink":"https://ashley-linn.github.io/2026/03/29/decisive-making-personality/","checklink":"/js/plugins/video.js"};
+  window.canonical["param"] = {"permalink":"https://ashley-linn.github.io/2026/08/29/llm%E2%80%91train%E2%80%91finetune%E2%80%91inference%E2%80%91overview/","checklink":"/js/plugins/video.js"};
   const ctx = {
     date_suffix: {
       just: `刚刚`,
